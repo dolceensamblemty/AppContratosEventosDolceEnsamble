@@ -147,35 +147,141 @@
                 </button>
             </div>
             
-            <form id="contractSettingsForm" class="p-6 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Empresa</label>
-                        <input type="text" id="companyName" value="DOLCE ENSAMBLE" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <form id="contractSettingsForm" class="p-6 space-y-8">
+                <!-- Encabezado y Comparecencia -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Encabezado y Comparecencia</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Empresa</label>
+                            <input type="text" id="companyName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nacionalidad</label>
+                            <input type="text" id="companyNationality" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">RFC/Identificación</label>
+                            <input type="text" id="companyId" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lugar del Contrato</label>
+                            <input type="text" id="contractPlace" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Domicilio</label>
+                            <input type="text" id="companyAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                            <input type="tel" id="companyPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="companyEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
+                </div>
+
+                <!-- Cláusula Primera -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🎵 Cláusula Primera: Objeto del Contrato</h3>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono de Contacto</label>
-                        <input type="tel" id="companyPhone" value="+52 811 047 4854" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción del Servicio</label>
+                        <textarea id="serviceDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
+                </div>
+
+                <!-- Cláusula Segunda -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">💰 Cláusula Segunda: Política de Pago y Cancelación</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Política de Pago</label>
+                            <textarea id="paymentPolicy" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Política de Cancelación</label>
+                            <textarea id="cancellationPolicy" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cláusula Tercera -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🎼 Cláusula Tercera: Repertorio y Música Adicional</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Política de Repertorio</label>
+                            <textarea id="repertoirePolicy" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Costo de Canciones Adicionales</label>
+                            <textarea id="additionalSongsCost" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cláusula Cuarta -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🏗️ Cláusula Cuarta: Logística y Responsabilidades</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Requisitos Logísticos</label>
+                            <textarea id="logisticsRequirements" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Responsabilidad del Equipo</label>
+                            <textarea id="equipmentResponsibility" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cláusula Quinta -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">⏰ Cláusula Quinta: Tiempo Extra y Puntualidad</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tiempo de Llegada</label>
+                            <textarea id="arrivalTime" rows="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Política de Tiempo Extra</label>
+                            <textarea id="overtimePolicy" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cláusula Sexta -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📸 Cláusula Sexta: Derechos de Imagen y Confidencialidad</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Derechos de Imagen</label>
+                            <textarea id="imageRights" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Confidencialidad</label>
+                            <textarea id="confidentiality" rows="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cláusula Séptima -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">⚖️ Cláusula Séptima: Solución de Controversias</h3>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email de Contacto</label>
-                        <input type="email" id="companyEmail" value="contacto@dolceensamble.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Resolución de Disputas</label>
+                        <textarea id="disputeResolution" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Términos de Pago por Defecto</label>
-                        <textarea id="defaultPaymentTerms" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">50% de anticipo para apartar la fecha, 50% restante el día del evento.</textarea>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Política de Cancelación</label>
-                        <textarea id="cancellationPolicy" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">En caso de cancelación por parte del cliente con menos de 15 días de anticipación, no se reembolsará el anticipo.</textarea>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Cláusulas Adicionales del Contrato</label>
-                        <textarea id="additionalClauses" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">FUERZA MAYOR: Dolce Ensamble no se hace responsable por cancelaciones debido a causas de fuerza mayor (clima extremo, emergencias sanitarias, etc.).
-EQUIPAMIENTO: Dolce Ensamble proporcionará el equipo de sonido necesario para el evento.
-RESPONSABILIDADES: El cliente se compromete a proporcionar un espacio adecuado y acceso a energía eléctrica.
-MODIFICACIONES: Cualquier cambio al presente contrato deberá ser acordado por escrito por ambas partes.
-JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa será resuelta en los tribunales competentes.</textarea>
+                </div>
+
+                <!-- Cláusula Octava -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">✍️ Cláusula Octava: Validez de Firma Digital</h3>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Validez de Firma Digital</label>
+                        <textarea id="digitalSignature" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </div>
                 
@@ -352,16 +458,43 @@ JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa
         let isDrawing = false;
         let signatureData = null;
         let contractSettings = {
+            // Encabezado y Comparecencia
             companyName: 'DOLCE ENSAMBLE',
+            companyNationality: 'Mexicana',
+            companyId: 'RFC: XAXX010101000',
+            companyAddress: 'Monterrey, Nuevo León, México',
             companyPhone: '+52 811 047 4854',
             companyEmail: 'contacto@dolceensamble.com',
-            defaultPaymentTerms: '50% de anticipo para apartar la fecha, 50% restante el día del evento.',
-            cancellationPolicy: 'En caso de cancelación por parte del cliente con menos de 15 días de anticipación, no se reembolsará el anticipo.',
-            additionalClauses: `FUERZA MAYOR: Dolce Ensamble no se hace responsable por cancelaciones debido a causas de fuerza mayor (clima extremo, emergencias sanitarias, etc.).
-EQUIPAMIENTO: Dolce Ensamble proporcionará el equipo de sonido necesario para el evento.
-RESPONSABILIDADES: El cliente se compromete a proporcionar un espacio adecuado y acceso a energía eléctrica.
-MODIFICACIONES: Cualquier cambio al presente contrato deberá ser acordado por escrito por ambas partes.
-JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa será resuelta en los tribunales competentes.`
+            contractPlace: 'Monterrey, Nuevo León',
+            
+            // Cláusula Primera: Objeto del Contrato
+            serviceDescription: 'Prestación de servicios musicales profesionales con ensamble en vivo para evento social/corporativo, incluyendo interpretación musical, equipo de sonido profesional y ambientación musical según cotización anexa.',
+            
+            // Cláusula Segunda: Política de Pago y Cancelación
+            paymentPolicy: '50% de anticipo para apartar la fecha al momento de la firma del contrato, 50% restante el día del evento antes del inicio del servicio.',
+            cancellationPolicy: 'En caso de cancelación por parte de EL CONTRATANTE con menos de 15 días de anticipación, no se reembolsará el anticipo. Con más de 15 días, se reembolsará el 80% del anticipo.',
+            
+            // Cláusula Tercera: Repertorio y Música Adicional
+            repertoirePolicy: 'EL PRESTADOR cuenta con un repertorio base de más de 200 canciones en diversos géneros. EL CONTRATANTE podrá solicitar hasta 5 canciones específicas sin costo adicional, siempre que se notifique con al menos 7 días de anticipación.',
+            additionalSongsCost: 'Canciones adicionales fuera del repertorio base tendrán un costo de $500 MXN por canción, sujeto a disponibilidad y complejidad musical.',
+            
+            // Cláusula Cuarta: Logística y Responsabilidades
+            logisticsRequirements: 'EL CONTRATANTE deberá proporcionar: espacio adecuado para el ensamble (mínimo 3x4 metros), acceso a energía eléctrica (2 contactos de 110V), área techada en caso de evento al aire libre, estacionamiento para el equipo, y alimentación para los músicos en eventos de más de 4 horas.',
+            equipmentResponsibility: 'EL CONTRATANTE será responsable de cualquier daño al equipo musical causado por terceros o condiciones del lugar no informadas previamente.',
+            
+            // Cláusula Quinta: Tiempo Extra y Puntualidad
+            arrivalTime: 'EL PRESTADOR llegará 60 minutos antes del inicio del evento para montaje y pruebas de sonido.',
+            overtimePolicy: 'Tiempo adicional al contratado tendrá un costo de $800 MXN por cada 30 minutos o fracción, sujeto a disponibilidad del ensamble.',
+            
+            // Cláusula Sexta: Derechos de Imagen
+            imageRights: 'EL CONTRATANTE otorga permiso a EL PRESTADOR para utilizar material audiovisual del evento con fines promocionales y de portafolio, salvo notificación expresa en contrario por escrito.',
+            confidentiality: 'Ambas partes se comprometen a mantener confidencialidad sobre información personal y detalles privados del evento.',
+            
+            // Cláusula Séptima: Solución de Controversias
+            disputeResolution: 'Las controversias se resolverán mediante mediación. En caso de no llegar a acuerdo, se someterán a la jurisdicción de los tribunales competentes de Monterrey, Nuevo León, México.',
+            
+            // Cláusula Octava: Validez de Firma Digital
+            digitalSignature: 'Las partes reconocen la validez legal de la firma electrónica conforme a la legislación mexicana vigente, teniendo el mismo valor probatorio que la firma autógrafa.'
         };
 
         // Inicialización
@@ -426,24 +559,58 @@ JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa
         }
 
         function fillContractSettingsForm() {
+            // Encabezado y Comparecencia
             document.getElementById('companyName').value = contractSettings.companyName;
+            document.getElementById('companyNationality').value = contractSettings.companyNationality;
+            document.getElementById('companyId').value = contractSettings.companyId;
+            document.getElementById('companyAddress').value = contractSettings.companyAddress;
             document.getElementById('companyPhone').value = contractSettings.companyPhone;
             document.getElementById('companyEmail').value = contractSettings.companyEmail;
-            document.getElementById('defaultPaymentTerms').value = contractSettings.defaultPaymentTerms;
+            document.getElementById('contractPlace').value = contractSettings.contractPlace;
+            
+            // Cláusulas
+            document.getElementById('serviceDescription').value = contractSettings.serviceDescription;
+            document.getElementById('paymentPolicy').value = contractSettings.paymentPolicy;
             document.getElementById('cancellationPolicy').value = contractSettings.cancellationPolicy;
-            document.getElementById('additionalClauses').value = contractSettings.additionalClauses;
+            document.getElementById('repertoirePolicy').value = contractSettings.repertoirePolicy;
+            document.getElementById('additionalSongsCost').value = contractSettings.additionalSongsCost;
+            document.getElementById('logisticsRequirements').value = contractSettings.logisticsRequirements;
+            document.getElementById('equipmentResponsibility').value = contractSettings.equipmentResponsibility;
+            document.getElementById('arrivalTime').value = contractSettings.arrivalTime;
+            document.getElementById('overtimePolicy').value = contractSettings.overtimePolicy;
+            document.getElementById('imageRights').value = contractSettings.imageRights;
+            document.getElementById('confidentiality').value = contractSettings.confidentiality;
+            document.getElementById('disputeResolution').value = contractSettings.disputeResolution;
+            document.getElementById('digitalSignature').value = contractSettings.digitalSignature;
         }
 
         async function handleContractSettingsSubmit(e) {
             e.preventDefault();
             
             contractSettings = {
+                // Encabezado y Comparecencia
                 companyName: document.getElementById('companyName').value,
+                companyNationality: document.getElementById('companyNationality').value,
+                companyId: document.getElementById('companyId').value,
+                companyAddress: document.getElementById('companyAddress').value,
                 companyPhone: document.getElementById('companyPhone').value,
                 companyEmail: document.getElementById('companyEmail').value,
-                defaultPaymentTerms: document.getElementById('defaultPaymentTerms').value,
+                contractPlace: document.getElementById('contractPlace').value,
+                
+                // Cláusulas
+                serviceDescription: document.getElementById('serviceDescription').value,
+                paymentPolicy: document.getElementById('paymentPolicy').value,
                 cancellationPolicy: document.getElementById('cancellationPolicy').value,
-                additionalClauses: document.getElementById('additionalClauses').value
+                repertoirePolicy: document.getElementById('repertoirePolicy').value,
+                additionalSongsCost: document.getElementById('additionalSongsCost').value,
+                logisticsRequirements: document.getElementById('logisticsRequirements').value,
+                equipmentResponsibility: document.getElementById('equipmentResponsibility').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                overtimePolicy: document.getElementById('overtimePolicy').value,
+                imageRights: document.getElementById('imageRights').value,
+                confidentiality: document.getElementById('confidentiality').value,
+                disputeResolution: document.getElementById('disputeResolution').value,
+                digitalSignature: document.getElementById('digitalSignature').value
             };
 
             try {
@@ -755,81 +922,174 @@ JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa
 
         function displayContract(contract) {
             const content = document.getElementById('contractContent');
-            const clauses = contractSettings.additionalClauses.split('\n').map((clause, index) => 
-                `<p>${index + 4}. <strong>${clause}</strong></p>`
-            ).join('');
+            const currentDate = new Date().toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            });
             
             content.innerHTML = `
                 <div class="elegant-border rounded-lg p-8 bg-white relative z-10">
+                    <!-- Encabezado -->
                     <div class="text-center mb-8">
                         <h1 class="text-3xl font-bold text-blue-800 mb-2">🎵 ${contractSettings.companyName}</h1>
                         <h2 class="text-xl font-semibold text-gray-700">CONTRATO DE SERVICIOS MUSICALES</h2>
                         <p class="text-sm text-gray-500 mt-2">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}</p>
+                        <p class="text-sm text-gray-600 mt-1">${contractSettings.contractPlace}, ${currentDate}</p>
                     </div>
                     
-                    <div class="space-y-6 text-sm leading-relaxed">
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <h3 class="font-semibold text-gray-800 mb-2">DATOS DEL CLIENTE:</h3>
-                                <p><strong>Nombre:</strong> ${contract.clientName}</p>
-                                <p><strong>Teléfono:</strong> ${contract.clientPhone}</p>
-                                ${contract.clientEmail ? `<p><strong>Email:</strong> ${contract.clientEmail}</p>` : ''}
+                    <!-- Comparecencia -->
+                    <div class="mb-8 text-sm leading-relaxed">
+                        <h3 class="font-bold text-gray-800 mb-4 text-center">COMPARECENCIA</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border rounded-lg p-4 bg-blue-50">
+                                <h4 class="font-semibold text-blue-800 mb-2">EL PRESTADOR:</h4>
+                                <p><strong>${contractSettings.companyName}</strong></p>
+                                <p>Nacionalidad: ${contractSettings.companyNationality}</p>
+                                <p>Identificación: ${contractSettings.companyId}</p>
+                                <p>Domicilio: ${contractSettings.companyAddress}</p>
+                                <p>Teléfono: ${contractSettings.companyPhone}</p>
+                                <p>Email: ${contractSettings.companyEmail}</p>
                             </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-800 mb-2">DATOS DEL EVENTO:</h3>
-                                <p><strong>Tipo:</strong> ${contract.eventType}</p>
-                                <p><strong>Fecha:</strong> ${new Date(contract.eventDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                                <p><strong>Hora:</strong> ${contract.eventTime}</p>
-                                <p><strong>Duración:</strong> ${contract.eventDuration} horas</p>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-2">LUGAR DEL EVENTO:</h3>
-                            <p>${contract.eventLocation}</p>
-                        </div>
-                        
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-2">SERVICIOS INCLUIDOS:</h3>
-                            <p>${contract.eventServices || 'Servicios musicales profesionales según lo acordado verbalmente.'}</p>
-                        </div>
-                        
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-2">TÉRMINOS Y CONDICIONES:</h3>
-                            <div class="space-y-2">
-                                <p>1. <strong>PRECIO TOTAL:</strong> $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                                <p>2. <strong>FORMA DE PAGO:</strong> ${contractSettings.defaultPaymentTerms}</p>
-                                <p>3. <strong>CANCELACIONES:</strong> ${contractSettings.cancellationPolicy}</p>
-                                ${clauses}
-                                ${contract.eventTerms ? `<p><strong>TÉRMINOS ADICIONALES:</strong> ${contract.eventTerms}</p>` : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-8 mt-12 pt-8 border-t-2 border-gray-200">
-                            <div class="text-center">
-                                <div class="border-b-2 border-gray-400 pb-2 mb-2">
-                                    <p class="text-lg font-semibold">${contractSettings.companyName}</p>
-                                    <p class="text-sm text-gray-600">Representante Legal</p>
+                            <div class="border rounded-lg p-4 bg-green-50">
+                                <h4 class="font-semibold text-green-800 mb-2">EL CONTRATANTE:</h4>
+                                <p><strong>${contract.clientName}</strong></p>
+                                <p>Teléfono: ${contract.clientPhone}</p>
+                                ${contract.clientEmail ? `<p>Email: ${contract.clientEmail}</p>` : ''}
+                                <div class="mt-2">
+                                    <p><strong>Evento:</strong> ${contract.eventType}</p>
+                                    <p><strong>Fecha:</strong> ${new Date(contract.eventDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                    <p><strong>Hora:</strong> ${contract.eventTime}</p>
+                                    <p><strong>Lugar:</strong> ${contract.eventLocation}</p>
                                 </div>
-                                <p class="text-xs text-gray-500">Firma del Prestador de Servicios</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cláusulas -->
+                    <div class="space-y-6 text-sm leading-relaxed">
+                        <!-- Cláusula Primera -->
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h4>
+                            <p class="mb-2">${contractSettings.serviceDescription}</p>
+                            <p><strong>Duración del servicio:</strong> ${contract.eventDuration} horas</p>
+                            <p><strong>Servicios específicos:</strong> ${contract.eventServices || 'Según cotización anexa'}</p>
+                        </div>
+                        
+                        <!-- Cláusula Segunda -->
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SEGUNDA: POLÍTICA DE PAGO Y CANCELACIÓN</h4>
+                            <p class="mb-2"><strong>Precio total:</strong> $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
+                            <p class="mb-2"><strong>Forma de pago:</strong> ${contractSettings.paymentPolicy}</p>
+                            <p><strong>Cancelaciones:</strong> ${contractSettings.cancellationPolicy}</p>
+                        </div>
+                        
+                        <!-- Cláusula Tercera -->
+                        <div class="border-l-4 border-purple-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA TERCERA: REPERTORIO Y MÚSICA ADICIONAL</h4>
+                            <p class="mb-2">${contractSettings.repertoirePolicy}</p>
+                            <p>${contractSettings.additionalSongsCost}</p>
+                        </div>
+                        
+                        <!-- Cláusula Cuarta -->
+                        <div class="border-l-4 border-orange-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA CUARTA: LOGÍSTICA Y RESPONSABILIDADES DEL CONTRATANTE</h4>
+                            <p class="mb-2">${contractSettings.logisticsRequirements}</p>
+                            <p>${contractSettings.equipmentResponsibility}</p>
+                        </div>
+                        
+                        <!-- Cláusula Quinta -->
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA QUINTA: TIEMPO EXTRA Y PUNTUALIDAD</h4>
+                            <p class="mb-2">${contractSettings.arrivalTime}</p>
+                            <p>${contractSettings.overtimePolicy}</p>
+                        </div>
+                        
+                        <!-- Cláusula Sexta -->
+                        <div class="border-l-4 border-pink-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SEXTA: DERECHOS DE IMAGEN Y CONFIDENCIALIDAD</h4>
+                            <p class="mb-2">${contractSettings.imageRights}</p>
+                            <p>${contractSettings.confidentiality}</p>
+                        </div>
+                        
+                        <!-- Cláusula Séptima -->
+                        <div class="border-l-4 border-indigo-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SÉPTIMA: SOLUCIÓN DE CONTROVERSIAS</h4>
+                            <p>${contractSettings.disputeResolution}</p>
+                        </div>
+                        
+                        <!-- Cláusula Octava -->
+                        <div class="border-l-4 border-gray-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA OCTAVA: VALIDEZ DE FIRMA DIGITAL</h4>
+                            <p>${contractSettings.digitalSignature}</p>
+                        </div>
+                        
+                        ${contract.eventTerms ? `
+                        <div class="border-l-4 border-yellow-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">TÉRMINOS ADICIONALES ESPECÍFICOS</h4>
+                            <p>${contract.eventTerms}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Aceptación y Firmas -->
+                    <div class="mt-12 pt-8 border-t-2 border-gray-300">
+                        <div class="text-center mb-8">
+                            <h3 class="font-bold text-gray-800 mb-2">ACEPTACIÓN DEL CONTRATO</h3>
+                            <p class="text-sm text-gray-600">Las partes manifiestan haber leído y comprendido el presente contrato, aceptando todos sus términos y condiciones.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="text-center">
+                                <div class="border-b-2 border-gray-400 pb-2 mb-2 h-20 flex items-center justify-center">
+                                    <div>
+                                        <p class="text-lg font-semibold">${contractSettings.companyName}</p>
+                                        <p class="text-sm text-gray-600">Representante Legal</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500">EL PRESTADOR</p>
+                                <p class="text-xs text-gray-500 mt-1">${contractSettings.companyPhone}</p>
                             </div>
                             <div class="text-center">
-                                <div class="border-b-2 border-gray-400 pb-2 mb-2" id="clientSignatureArea">
+                                <div class="border-b-2 border-gray-400 pb-2 mb-2 h-20 flex items-center justify-center" id="clientSignatureArea">
                                     ${contract.clientSignature ? 
-                                        `<img src="${contract.clientSignature}" alt="Firma del cliente" class="max-h-16 mx-auto">` : 
-                                        '<p class="text-gray-400 py-4">Pendiente de firma</p>'
+                                        `<img src="${contract.clientSignature}" alt="Firma del cliente" class="max-h-16 max-w-48">` : 
+                                        '<p class="text-gray-400">Pendiente de firma</p>'
                                     }
                                 </div>
-                                <p class="text-xs text-gray-500">Firma del Cliente</p>
+                                <p class="text-xs text-gray-500">EL CONTRATANTE</p>
                                 <p class="text-xs font-medium">${contract.clientName}</p>
+                                <p class="text-xs text-gray-500 mt-1">${contract.clientPhone}</p>
                             </div>
                         </div>
-                        
-                        <div class="text-center text-xs text-gray-400 mt-8 pt-4 border-t">
-                            <p>Contrato generado el ${new Date(contract.createdAt).toLocaleDateString('es-ES')}</p>
-                            <p>${contractSettings.companyName} - Servicios Musicales Profesionales</p>
-                            <p>Contacto: ${contractSettings.companyPhone}</p>
+                    </div>
+                    
+                    <!-- Anexo de Cotización -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-bold text-gray-800 mb-4 text-center">ANEXO - COTIZACIÓN</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">Detalles del Servicio:</h4>
+                                <p>• Tipo de evento: ${contract.eventType}</p>
+                                <p>• Duración: ${contract.eventDuration} horas</p>
+                                <p>• Fecha: ${new Date(contract.eventDate).toLocaleDateString('es-ES')}</p>
+                                <p>• Lugar: ${contract.eventLocation}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">Desglose de Costos:</h4>
+                                <p>• Honorarios del ensamble: Incluido</p>
+                                <p>• Equipo de sonido: Incluido</p>
+                                <p>• Gastos de traslado: Incluido</p>
+                                <p class="font-bold border-t pt-2 mt-2">Total: $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <!-- Pie de página -->
+                    <div class="text-center text-xs text-gray-400 mt-8 pt-4 border-t">
+                        <p>Contrato generado el ${new Date(contract.createdAt).toLocaleDateString('es-ES')}</p>
+                        <p>${contractSettings.companyName} - Servicios Musicales Profesionales</p>
+                        <p>Este documento tiene validez legal conforme a la legislación mexicana vigente</p>
                     </div>
                 </div>
             `;
@@ -948,77 +1208,154 @@ JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa
                 `<p style="margin: 8px 0;"><strong>${index + 4}. ${clause}</strong></p>`
             ).join('');
             
+            const currentDate = new Date().toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            });
+            
             pdfContent.innerHTML = `
-                <div style="background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 10px; border: 3px solid #1e40af;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="font-size: 28px; font-weight: bold; color: #1e40af; margin: 0;">🎵 ${contractSettings.companyName}</h1>
-                        <h2 style="font-size: 20px; font-weight: 600; color: #374151; margin: 10px 0;">CONTRATO DE SERVICIOS MUSICALES</h2>
-                        <p style="font-size: 12px; color: #6b7280; margin: 5px 0;">Contrato No. ${currentContract.id.substring(0, 8).toUpperCase()} - Versión ${currentContract.contractVersion}</p>
+                <div style="background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 10px; border: 3px solid #1e40af; font-family: Arial, sans-serif;">
+                    <!-- Encabezado -->
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h1 style="font-size: 26px; font-weight: bold; color: #1e40af; margin: 0;">🎵 ${contractSettings.companyName}</h1>
+                        <h2 style="font-size: 18px; font-weight: 600; color: #374151; margin: 8px 0;">CONTRATO DE SERVICIOS MUSICALES</h2>
+                        <p style="font-size: 11px; color: #6b7280; margin: 3px 0;">Contrato No. ${currentContract.id.substring(0, 8).toUpperCase()} - Versión ${currentContract.contractVersion}</p>
+                        <p style="font-size: 11px; color: #6b7280; margin: 3px 0;">${contractSettings.contractPlace}, ${currentDate}</p>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
-                        <div>
-                            <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">DATOS DEL CLIENTE:</h3>
-                            <p style="margin: 5px 0;"><strong>Nombre:</strong> ${currentContract.clientName}</p>
-                            <p style="margin: 5px 0;"><strong>Teléfono:</strong> ${currentContract.clientPhone}</p>
-                            ${currentContract.clientEmail ? `<p style="margin: 5px 0;"><strong>Email:</strong> ${currentContract.clientEmail}</p>` : ''}
-                        </div>
-                        <div>
-                            <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">DATOS DEL EVENTO:</h3>
-                            <p style="margin: 5px 0;"><strong>Tipo:</strong> ${currentContract.eventType}</p>
-                            <p style="margin: 5px 0;"><strong>Fecha:</strong> ${new Date(currentContract.eventDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                            <p style="margin: 5px 0;"><strong>Hora:</strong> ${currentContract.eventTime}</p>
-                            <p style="margin: 5px 0;"><strong>Duración:</strong> ${currentContract.eventDuration} horas</p>
-                        </div>
-                    </div>
-                    
+                    <!-- Comparecencia -->
                     <div style="margin-bottom: 20px;">
-                        <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">LUGAR DEL EVENTO:</h3>
-                        <p style="margin: 5px 0;">${currentContract.eventLocation}</p>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">SERVICIOS INCLUIDOS:</h3>
-                        <p style="margin: 5px 0;">${currentContract.eventServices || 'Servicios musicales profesionales según lo acordado verbalmente.'}</p>
-                    </div>
-                    
-                    <div style="margin-bottom: 25px;">
-                        <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">TÉRMINOS Y CONDICIONES:</h3>
-                        <div style="line-height: 1.8;">
-                            <p style="margin: 8px 0;"><strong>1. PRECIO TOTAL:</strong> $${parseFloat(currentContract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                            <p style="margin: 8px 0;"><strong>2. FORMA DE PAGO:</strong> ${contractSettings.defaultPaymentTerms}</p>
-                            <p style="margin: 8px 0;"><strong>3. CANCELACIONES:</strong> ${contractSettings.cancellationPolicy}</p>
-                            ${clauses}
-                            ${currentContract.eventTerms ? `<p style="margin: 8px 0;"><strong>TÉRMINOS ADICIONALES:</strong> ${currentContract.eventTerms}</p>` : ''}
+                        <h3 style="font-size: 14px; font-weight: bold; color: #374151; text-align: center; margin-bottom: 15px;">COMPARECENCIA</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="border: 1px solid #3b82f6; border-radius: 8px; padding: 12px; background: #eff6ff;">
+                                <h4 style="font-size: 12px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">EL PRESTADOR:</h4>
+                                <p style="margin: 3px 0; font-size: 11px;"><strong>${contractSettings.companyName}</strong></p>
+                                <p style="margin: 3px 0; font-size: 10px;">Nacionalidad: ${contractSettings.companyNationality}</p>
+                                <p style="margin: 3px 0; font-size: 10px;">ID: ${contractSettings.companyId}</p>
+                                <p style="margin: 3px 0; font-size: 10px;">Domicilio: ${contractSettings.companyAddress}</p>
+                                <p style="margin: 3px 0; font-size: 10px;">Tel: ${contractSettings.companyPhone}</p>
+                            </div>
+                            <div style="border: 1px solid #10b981; border-radius: 8px; padding: 12px; background: #f0fdf4;">
+                                <h4 style="font-size: 12px; font-weight: bold; color: #059669; margin-bottom: 8px;">EL CONTRATANTE:</h4>
+                                <p style="margin: 3px 0; font-size: 11px;"><strong>${currentContract.clientName}</strong></p>
+                                <p style="margin: 3px 0; font-size: 10px;">Tel: ${currentContract.clientPhone}</p>
+                                ${currentContract.clientEmail ? `<p style="margin: 3px 0; font-size: 10px;">Email: ${currentContract.clientEmail}</p>` : ''}
+                                <p style="margin: 3px 0; font-size: 10px;"><strong>Evento:</strong> ${currentContract.eventType}</p>
+                                <p style="margin: 3px 0; font-size: 10px;"><strong>Fecha:</strong> ${new Date(currentContract.eventDate).toLocaleDateString('es-ES')}</p>
+                                <p style="margin: 3px 0; font-size: 10px;"><strong>Lugar:</strong> ${currentContract.eventLocation}</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; padding-top: 30px; border-top: 2px solid #374151;">
+                    <!-- Cláusulas -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="border-left: 4px solid #3b82f6; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.serviceDescription}</p>
+                            <p style="font-size: 10px; margin: 3px 0;"><strong>Duración:</strong> ${currentContract.eventDuration} horas</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #10b981; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA SEGUNDA: PAGO Y CANCELACIÓN</h4>
+                            <p style="font-size: 10px; margin: 3px 0;"><strong>Total:</strong> $${parseFloat(currentContract.eventPrice).toLocaleString('es-MX')} MXN</p>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.paymentPolicy}</p>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.cancellationPolicy}</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #8b5cf6; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA TERCERA: REPERTORIO</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.repertoirePolicy}</p>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.additionalSongsCost}</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #f59e0b; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA CUARTA: LOGÍSTICA</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.logisticsRequirements}</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #ef4444; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA QUINTA: TIEMPO EXTRA</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.arrivalTime}</p>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.overtimePolicy}</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #ec4899; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA SEXTA: DERECHOS DE IMAGEN</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.imageRights}</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #6366f1; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA SÉPTIMA: CONTROVERSIAS</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.disputeResolution}</p>
+                        </div>
+                        
+                        <div style="border-left: 4px solid #6b7280; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">CLÁUSULA OCTAVA: FIRMA DIGITAL</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${contractSettings.digitalSignature}</p>
+                        </div>
+                        
+                        ${currentContract.eventTerms ? `
+                        <div style="border-left: 4px solid #eab308; padding-left: 10px; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">TÉRMINOS ADICIONALES</h4>
+                            <p style="font-size: 10px; margin: 3px 0;">${currentContract.eventTerms}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Aceptación -->
+                    <div style="text-align: center; margin: 20px 0;">
+                        <h3 style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 5px;">ACEPTACIÓN DEL CONTRATO</h3>
+                        <p style="font-size: 10px; color: #6b7280;">Las partes aceptan todos los términos y condiciones establecidos.</p>
+                    </div>
+                    
+                    <!-- Firmas -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #374151;">
                         <div style="text-align: center;">
-                            <div style="border-bottom: 2px solid #374151; padding-bottom: 10px; margin-bottom: 10px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <div style="border-bottom: 2px solid #374151; padding-bottom: 8px; margin-bottom: 8px; height: 50px; display: flex; align-items: center; justify-content: center;">
                                 <div>
-                                    <p style="font-size: 16px; font-weight: bold; margin: 0;">${contractSettings.companyName}</p>
-                                    <p style="font-size: 12px; color: #6b7280; margin: 5px 0;">Representante Legal</p>
+                                    <p style="font-size: 12px; font-weight: bold; margin: 0;">${contractSettings.companyName}</p>
+                                    <p style="font-size: 10px; color: #6b7280; margin: 2px 0;">Representante Legal</p>
                                 </div>
                             </div>
-                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Firma del Prestador de Servicios</p>
+                            <p style="font-size: 9px; color: #6b7280; margin: 0;">EL PRESTADOR</p>
                         </div>
                         <div style="text-align: center;">
-                            <div style="border-bottom: 2px solid #374151; padding-bottom: 10px; margin-bottom: 10px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <div style="border-bottom: 2px solid #374151; padding-bottom: 8px; margin-bottom: 8px; height: 50px; display: flex; align-items: center; justify-content: center;">
                                 ${currentContract.clientSignature ? 
-                                    `<img src="${currentContract.clientSignature}" style="max-height: 50px; max-width: 200px;">` : 
-                                    '<p style="color: #9ca3af; margin: 0;">Pendiente de firma</p>'
+                                    `<img src="${currentContract.clientSignature}" style="max-height: 40px; max-width: 150px;">` : 
+                                    '<p style="color: #9ca3af; margin: 0; font-size: 10px;">Pendiente de firma</p>'
                                 }
                             </div>
-                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Firma del Cliente</p>
-                            <p style="font-size: 11px; font-weight: 600; margin: 5px 0;">${currentContract.clientName}</p>
+                            <p style="font-size: 9px; color: #6b7280; margin: 0;">EL CONTRATANTE</p>
+                            <p style="font-size: 9px; font-weight: 600; margin: 2px 0;">${currentContract.clientName}</p>
                         </div>
                     </div>
                     
-                    <div style="text-align: center; font-size: 10px; color: #9ca3af; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-                        <p style="margin: 2px 0;">Contrato generado el ${new Date(currentContract.createdAt).toLocaleDateString('es-ES')}</p>
-                        <p style="margin: 2px 0;">${contractSettings.companyName} - Servicios Musicales Profesionales</p>
-                        <p style="margin: 2px 0;">Contacto: ${contractSettings.companyPhone}</p>
+                    <!-- Anexo -->
+                    <div style="margin-top: 20px; padding: 15px; border: 1px solid #d1d5db; border-radius: 8px; background: #f9fafb;">
+                        <h3 style="font-size: 12px; font-weight: bold; color: #374151; text-align: center; margin-bottom: 10px;">ANEXO - COTIZACIÓN</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 10px;">
+                            <div>
+                                <h4 style="font-weight: bold; margin-bottom: 5px;">Detalles del Servicio:</h4>
+                                <p style="margin: 2px 0;">• Evento: ${currentContract.eventType}</p>
+                                <p style="margin: 2px 0;">• Duración: ${currentContract.eventDuration} horas</p>
+                                <p style="margin: 2px 0;">• Fecha: ${new Date(currentContract.eventDate).toLocaleDateString('es-ES')}</p>
+                            </div>
+                            <div>
+                                <h4 style="font-weight: bold; margin-bottom: 5px;">Desglose:</h4>
+                                <p style="margin: 2px 0;">• Honorarios: Incluido</p>
+                                <p style="margin: 2px 0;">• Equipo: Incluido</p>
+                                <p style="margin: 2px 0; font-weight: bold; border-top: 1px solid #d1d5db; padding-top: 5px;">Total: $${parseFloat(currentContract.eventPrice).toLocaleString('es-MX')} MXN</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pie -->
+                    <div style="text-align: center; font-size: 8px; color: #9ca3af; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                        <p style="margin: 1px 0;">Contrato generado el ${new Date(currentContract.createdAt).toLocaleDateString('es-ES')}</p>
+                        <p style="margin: 1px 0;">${contractSettings.companyName} - Servicios Musicales Profesionales</p>
+                        <p style="margin: 1px 0;">Documento con validez legal conforme a la legislación mexicana</p>
                     </div>
                 </div>
             `;
@@ -1073,5 +1410,5 @@ JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa
             window.open(whatsappUrl, '_blank');
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f39936f623c915',t:'MTc1Nzg5MTg1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f3baa20712b488',t:'MTc1Nzg5MzIyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
