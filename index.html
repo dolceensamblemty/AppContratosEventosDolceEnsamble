@@ -32,7 +32,10 @@
             cursor: crosshair;
         }
         .contract-bg {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background-image: url('https://i.ibb.co/nSdYQnh/Plantilla-1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             position: relative;
         }
         .contract-bg::before {
@@ -42,10 +45,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20px 20px, #e2e8f0 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.3;
+            background: rgba(255, 255, 255, 0.95);
         }
         .elegant-border {
             border: 3px solid #1e40af;
@@ -84,6 +84,9 @@
                     <div class="flex items-center space-x-4">
                         <button id="newEventBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
                             + Nuevo Evento
+                        </button>
+                        <button id="contractSettingsBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200">
+                            ⚙️ Configurar Contrato
                         </button>
                         <button id="logoutBtn" class="text-gray-600 hover:text-gray-800">Cerrar Sesión</button>
                     </div>
@@ -132,6 +135,62 @@
         </div>
     </div>
 
+    <!-- Modal Configuración del Contrato -->
+    <div id="contractSettingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">Configuración del Contrato</h2>
+                <button id="closeContractSettings" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="contractSettingsForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Empresa</label>
+                        <input type="text" id="companyName" value="DOLCE ENSAMBLE" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono de Contacto</label>
+                        <input type="tel" id="companyPhone" value="+52 811 047 4854" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email de Contacto</label>
+                        <input type="email" id="companyEmail" value="contacto@dolceensamble.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Términos de Pago por Defecto</label>
+                        <textarea id="defaultPaymentTerms" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">50% de anticipo para apartar la fecha, 50% restante el día del evento.</textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Política de Cancelación</label>
+                        <textarea id="cancellationPolicy" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">En caso de cancelación por parte del cliente con menos de 15 días de anticipación, no se reembolsará el anticipo.</textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cláusulas Adicionales del Contrato</label>
+                        <textarea id="additionalClauses" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">FUERZA MAYOR: Dolce Ensamble no se hace responsable por cancelaciones debido a causas de fuerza mayor (clima extremo, emergencias sanitarias, etc.).
+EQUIPAMIENTO: Dolce Ensamble proporcionará el equipo de sonido necesario para el evento.
+RESPONSABILIDADES: El cliente se compromete a proporcionar un espacio adecuado y acceso a energía eléctrica.
+MODIFICACIONES: Cualquier cambio al presente contrato deberá ser acordado por escrito por ambas partes.
+JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa será resuelta en los tribunales competentes.</textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-6 border-t">
+                    <button type="button" id="cancelContractSettings" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        Guardar Configuración
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Nuevo/Editar Evento -->
     <div id="eventModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
@@ -145,6 +204,7 @@
             </div>
             
             <form id="eventForm" class="p-6 space-y-6">
+                <input type="hidden" id="editingEventId">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Cliente *</label>
@@ -188,6 +248,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Precio Total *</label>
                         <input type="number" id="eventPrice" required min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Estado del Contrato</label>
+                        <select id="contractStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="firmado">Firmado</option>
+                            <option value="completado">Completado</option>
+                        </select>
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Servicios Incluidos</label>
@@ -283,11 +351,24 @@
         let currentContract = null;
         let isDrawing = false;
         let signatureData = null;
+        let contractSettings = {
+            companyName: 'DOLCE ENSAMBLE',
+            companyPhone: '+52 811 047 4854',
+            companyEmail: 'contacto@dolceensamble.com',
+            defaultPaymentTerms: '50% de anticipo para apartar la fecha, 50% restante el día del evento.',
+            cancellationPolicy: 'En caso de cancelación por parte del cliente con menos de 15 días de anticipación, no se reembolsará el anticipo.',
+            additionalClauses: `FUERZA MAYOR: Dolce Ensamble no se hace responsable por cancelaciones debido a causas de fuerza mayor (clima extremo, emergencias sanitarias, etc.).
+EQUIPAMIENTO: Dolce Ensamble proporcionará el equipo de sonido necesario para el evento.
+RESPONSABILIDADES: El cliente se compromete a proporcionar un espacio adecuado y acceso a energía eléctrica.
+MODIFICACIONES: Cualquier cambio al presente contrato deberá ser acordado por escrito por ambas partes.
+JURISDICCIÓN: Este contrato se rige por las leyes mexicanas y cualquier disputa será resuelta en los tribunales competentes.`
+        };
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             checkURLParams();
             setupEventListeners();
+            loadContractSettings();
         });
 
         function checkURLParams() {
@@ -308,9 +389,15 @@
             // Admin Panel
             document.getElementById('logoutBtn').addEventListener('click', logout);
             document.getElementById('newEventBtn').addEventListener('click', () => openEventModal());
+            document.getElementById('contractSettingsBtn').addEventListener('click', openContractSettings);
             document.getElementById('closeModal').addEventListener('click', closeEventModal);
             document.getElementById('cancelBtn').addEventListener('click', closeEventModal);
             document.getElementById('eventForm').addEventListener('submit', handleEventSubmit);
+            
+            // Contract Settings
+            document.getElementById('closeContractSettings').addEventListener('click', closeContractSettings);
+            document.getElementById('cancelContractSettings').addEventListener('click', closeContractSettings);
+            document.getElementById('contractSettingsForm').addEventListener('submit', handleContractSettingsSubmit);
             
             // Búsqueda
             document.getElementById('searchInput').addEventListener('input', filterEvents);
@@ -326,6 +413,73 @@
             document.getElementById('saveSignature').addEventListener('click', saveSignature);
             document.getElementById('downloadPDF').addEventListener('click', downloadContractPDF);
             document.getElementById('contactAdmin').addEventListener('click', contactAdmin);
+        }
+
+        // Configuración del contrato
+        function openContractSettings() {
+            document.getElementById('contractSettingsModal').classList.remove('hidden');
+            fillContractSettingsForm();
+        }
+
+        function closeContractSettings() {
+            document.getElementById('contractSettingsModal').classList.add('hidden');
+        }
+
+        function fillContractSettingsForm() {
+            document.getElementById('companyName').value = contractSettings.companyName;
+            document.getElementById('companyPhone').value = contractSettings.companyPhone;
+            document.getElementById('companyEmail').value = contractSettings.companyEmail;
+            document.getElementById('defaultPaymentTerms').value = contractSettings.defaultPaymentTerms;
+            document.getElementById('cancellationPolicy').value = contractSettings.cancellationPolicy;
+            document.getElementById('additionalClauses').value = contractSettings.additionalClauses;
+        }
+
+        async function handleContractSettingsSubmit(e) {
+            e.preventDefault();
+            
+            contractSettings = {
+                companyName: document.getElementById('companyName').value,
+                companyPhone: document.getElementById('companyPhone').value,
+                companyEmail: document.getElementById('companyEmail').value,
+                defaultPaymentTerms: document.getElementById('defaultPaymentTerms').value,
+                cancellationPolicy: document.getElementById('cancellationPolicy').value,
+                additionalClauses: document.getElementById('additionalClauses').value
+            };
+
+            try {
+                await saveContractSettings();
+                closeContractSettings();
+                alert('Configuración guardada exitosamente');
+            } catch (error) {
+                console.error('Error al guardar configuración:', error);
+                alert('Error al guardar la configuración');
+            }
+        }
+
+        async function loadContractSettings() {
+            try {
+                const docRef = window.firestore.doc(window.db, 'settings', 'contract');
+                const docSnap = await window.firestore.getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    contractSettings = { ...contractSettings, ...docSnap.data() };
+                }
+            } catch (error) {
+                console.error('Error al cargar configuración:', error);
+            }
+        }
+
+        async function saveContractSettings() {
+            try {
+                const docRef = window.firestore.doc(window.db, 'settings', 'contract');
+                await window.firestore.updateDoc(docRef, contractSettings);
+            } catch (error) {
+                // Si el documento no existe, lo creamos
+                await window.firestore.addDoc(window.firestore.collection(window.db, 'settings'), {
+                    ...contractSettings,
+                    id: 'contract'
+                });
+            }
         }
 
         // Autenticación
@@ -376,15 +530,18 @@
                 fillEventForm(eventData);
             } else {
                 document.getElementById('eventForm').reset();
+                document.getElementById('contractStatus').value = 'pendiente';
             }
         }
 
         function closeEventModal() {
             document.getElementById('eventModal').classList.add('hidden');
             document.getElementById('eventForm').reset();
+            document.getElementById('editingEventId').value = '';
         }
 
         function fillEventForm(eventData) {
+            document.getElementById('editingEventId').value = eventData.id || '';
             document.getElementById('clientName').value = eventData.clientName || '';
             document.getElementById('clientPhone').value = eventData.clientPhone || '';
             document.getElementById('clientEmail').value = eventData.clientEmail || '';
@@ -394,6 +551,7 @@
             document.getElementById('eventLocation').value = eventData.eventLocation || '';
             document.getElementById('eventDuration').value = eventData.eventDuration || '';
             document.getElementById('eventPrice').value = eventData.eventPrice || '';
+            document.getElementById('contractStatus').value = eventData.status || 'pendiente';
             document.getElementById('eventServices').value = eventData.eventServices || '';
             document.getElementById('eventTerms').value = eventData.eventTerms || '';
         }
@@ -411,19 +569,34 @@
                 eventLocation: document.getElementById('eventLocation').value,
                 eventDuration: document.getElementById('eventDuration').value,
                 eventPrice: document.getElementById('eventPrice').value,
+                status: document.getElementById('contractStatus').value,
                 eventServices: document.getElementById('eventServices').value,
                 eventTerms: document.getElementById('eventTerms').value,
-                status: 'pendiente',
                 contractVersion: 1,
-                createdAt: new Date().toISOString(),
                 adminSignature: true
             };
 
+            const editingId = document.getElementById('editingEventId').value;
+
             try {
-                const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), eventData);
-                closeEventModal();
-                showSuccessScreen(docRef.id);
-                loadEvents();
+                if (editingId) {
+                    // Actualizar evento existente
+                    const docRef = window.firestore.doc(window.db, 'contracts', editingId);
+                    await window.firestore.updateDoc(docRef, {
+                        ...eventData,
+                        updatedAt: new Date().toISOString()
+                    });
+                    closeEventModal();
+                    loadEvents();
+                    alert('Evento actualizado exitosamente');
+                } else {
+                    // Crear nuevo evento
+                    eventData.createdAt = new Date().toISOString();
+                    const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), eventData);
+                    closeEventModal();
+                    showSuccessScreen(docRef.id);
+                    loadEvents();
+                }
             } catch (error) {
                 console.error('Error al guardar evento:', error);
                 alert('Error al guardar el evento. Por favor intenta de nuevo.');
@@ -541,7 +714,7 @@
                 const docSnap = await window.firestore.getDoc(docRef);
                 
                 if (docSnap.exists()) {
-                    openEventModal(docSnap.data());
+                    openEventModal({ id: eventId, ...docSnap.data() });
                 }
             } catch (error) {
                 console.error('Error al cargar evento:', error);
@@ -582,10 +755,14 @@
 
         function displayContract(contract) {
             const content = document.getElementById('contractContent');
+            const clauses = contractSettings.additionalClauses.split('\n').map((clause, index) => 
+                `<p>${index + 4}. <strong>${clause}</strong></p>`
+            ).join('');
+            
             content.innerHTML = `
-                <div class="elegant-border rounded-lg p-8 bg-white relative">
+                <div class="elegant-border rounded-lg p-8 bg-white relative z-10">
                     <div class="text-center mb-8">
-                        <h1 class="text-3xl font-bold text-blue-800 mb-2">🎵 DOLCE ENSAMBLE</h1>
+                        <h1 class="text-3xl font-bold text-blue-800 mb-2">🎵 ${contractSettings.companyName}</h1>
                         <h2 class="text-xl font-semibold text-gray-700">CONTRATO DE SERVICIOS MUSICALES</h2>
                         <p class="text-sm text-gray-500 mt-2">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}</p>
                     </div>
@@ -621,18 +798,17 @@
                             <h3 class="font-semibold text-gray-800 mb-2">TÉRMINOS Y CONDICIONES:</h3>
                             <div class="space-y-2">
                                 <p>1. <strong>PRECIO TOTAL:</strong> $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                                <p>2. <strong>FORMA DE PAGO:</strong> 50% de anticipo para apartar la fecha, 50% restante el día del evento.</p>
-                                <p>3. <strong>CANCELACIONES:</strong> En caso de cancelación por parte del cliente con menos de 15 días de anticipación, no se reembolsará el anticipo.</p>
-                                <p>4. <strong>FUERZA MAYOR:</strong> Dolce Ensamble no se hace responsable por cancelaciones debido a causas de fuerza mayor (clima extremo, emergencias sanitarias, etc.).</p>
-                                <p>5. <strong>EQUIPAMIENTO:</strong> Dolce Ensamble proporcionará el equipo de sonido necesario para el evento.</p>
-                                ${contract.eventTerms ? `<p>6. <strong>TÉRMINOS ADICIONALES:</strong> ${contract.eventTerms}</p>` : ''}
+                                <p>2. <strong>FORMA DE PAGO:</strong> ${contractSettings.defaultPaymentTerms}</p>
+                                <p>3. <strong>CANCELACIONES:</strong> ${contractSettings.cancellationPolicy}</p>
+                                ${clauses}
+                                ${contract.eventTerms ? `<p><strong>TÉRMINOS ADICIONALES:</strong> ${contract.eventTerms}</p>` : ''}
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-8 mt-12 pt-8 border-t-2 border-gray-200">
                             <div class="text-center">
                                 <div class="border-b-2 border-gray-400 pb-2 mb-2">
-                                    <p class="text-lg font-semibold">DOLCE ENSAMBLE</p>
+                                    <p class="text-lg font-semibold">${contractSettings.companyName}</p>
                                     <p class="text-sm text-gray-600">Representante Legal</p>
                                 </div>
                                 <p class="text-xs text-gray-500">Firma del Prestador de Servicios</p>
@@ -651,7 +827,8 @@
                         
                         <div class="text-center text-xs text-gray-400 mt-8 pt-4 border-t">
                             <p>Contrato generado el ${new Date(contract.createdAt).toLocaleDateString('es-ES')}</p>
-                            <p>Dolce Ensamble - Servicios Musicales Profesionales</p>
+                            <p>${contractSettings.companyName} - Servicios Musicales Profesionales</p>
+                            <p>Contacto: ${contractSettings.companyPhone}</p>
                         </div>
                     </div>
                 </div>
@@ -753,37 +930,140 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             
-            // Capturar el contenido del contrato
-            const contractElement = document.getElementById('contractContent');
+            // Crear elemento temporal para el PDF con mejor formato
+            const pdfContent = document.createElement('div');
+            pdfContent.style.width = '794px'; // A4 width in pixels at 96 DPI
+            pdfContent.style.padding = '40px';
+            pdfContent.style.backgroundColor = 'white';
+            pdfContent.style.fontFamily = 'Arial, sans-serif';
+            pdfContent.style.fontSize = '14px';
+            pdfContent.style.lineHeight = '1.6';
+            pdfContent.style.color = '#333';
+            pdfContent.style.backgroundImage = 'url(https://i.ibb.co/nSdYQnh/Plantilla-1.jpg)';
+            pdfContent.style.backgroundSize = 'cover';
+            pdfContent.style.backgroundPosition = 'center';
+            pdfContent.style.backgroundRepeat = 'no-repeat';
+            
+            const clauses = contractSettings.additionalClauses.split('\n').map((clause, index) => 
+                `<p style="margin: 8px 0;"><strong>${index + 4}. ${clause}</strong></p>`
+            ).join('');
+            
+            pdfContent.innerHTML = `
+                <div style="background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 10px; border: 3px solid #1e40af;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="font-size: 28px; font-weight: bold; color: #1e40af; margin: 0;">🎵 ${contractSettings.companyName}</h1>
+                        <h2 style="font-size: 20px; font-weight: 600; color: #374151; margin: 10px 0;">CONTRATO DE SERVICIOS MUSICALES</h2>
+                        <p style="font-size: 12px; color: #6b7280; margin: 5px 0;">Contrato No. ${currentContract.id.substring(0, 8).toUpperCase()} - Versión ${currentContract.contractVersion}</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
+                        <div>
+                            <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">DATOS DEL CLIENTE:</h3>
+                            <p style="margin: 5px 0;"><strong>Nombre:</strong> ${currentContract.clientName}</p>
+                            <p style="margin: 5px 0;"><strong>Teléfono:</strong> ${currentContract.clientPhone}</p>
+                            ${currentContract.clientEmail ? `<p style="margin: 5px 0;"><strong>Email:</strong> ${currentContract.clientEmail}</p>` : ''}
+                        </div>
+                        <div>
+                            <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">DATOS DEL EVENTO:</h3>
+                            <p style="margin: 5px 0;"><strong>Tipo:</strong> ${currentContract.eventType}</p>
+                            <p style="margin: 5px 0;"><strong>Fecha:</strong> ${new Date(currentContract.eventDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            <p style="margin: 5px 0;"><strong>Hora:</strong> ${currentContract.eventTime}</p>
+                            <p style="margin: 5px 0;"><strong>Duración:</strong> ${currentContract.eventDuration} horas</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">LUGAR DEL EVENTO:</h3>
+                        <p style="margin: 5px 0;">${currentContract.eventLocation}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">SERVICIOS INCLUIDOS:</h3>
+                        <p style="margin: 5px 0;">${currentContract.eventServices || 'Servicios musicales profesionales según lo acordado verbalmente.'}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="font-weight: bold; color: #374151; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">TÉRMINOS Y CONDICIONES:</h3>
+                        <div style="line-height: 1.8;">
+                            <p style="margin: 8px 0;"><strong>1. PRECIO TOTAL:</strong> $${parseFloat(currentContract.eventPrice).toLocaleString('es-MX')} MXN</p>
+                            <p style="margin: 8px 0;"><strong>2. FORMA DE PAGO:</strong> ${contractSettings.defaultPaymentTerms}</p>
+                            <p style="margin: 8px 0;"><strong>3. CANCELACIONES:</strong> ${contractSettings.cancellationPolicy}</p>
+                            ${clauses}
+                            ${currentContract.eventTerms ? `<p style="margin: 8px 0;"><strong>TÉRMINOS ADICIONALES:</strong> ${currentContract.eventTerms}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; padding-top: 30px; border-top: 2px solid #374151;">
+                        <div style="text-align: center;">
+                            <div style="border-bottom: 2px solid #374151; padding-bottom: 10px; margin-bottom: 10px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <div>
+                                    <p style="font-size: 16px; font-weight: bold; margin: 0;">${contractSettings.companyName}</p>
+                                    <p style="font-size: 12px; color: #6b7280; margin: 5px 0;">Representante Legal</p>
+                                </div>
+                            </div>
+                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Firma del Prestador de Servicios</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="border-bottom: 2px solid #374151; padding-bottom: 10px; margin-bottom: 10px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                ${currentContract.clientSignature ? 
+                                    `<img src="${currentContract.clientSignature}" style="max-height: 50px; max-width: 200px;">` : 
+                                    '<p style="color: #9ca3af; margin: 0;">Pendiente de firma</p>'
+                                }
+                            </div>
+                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Firma del Cliente</p>
+                            <p style="font-size: 11px; font-weight: 600; margin: 5px 0;">${currentContract.clientName}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; font-size: 10px; color: #9ca3af; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                        <p style="margin: 2px 0;">Contrato generado el ${new Date(currentContract.createdAt).toLocaleDateString('es-ES')}</p>
+                        <p style="margin: 2px 0;">${contractSettings.companyName} - Servicios Musicales Profesionales</p>
+                        <p style="margin: 2px 0;">Contacto: ${contractSettings.companyPhone}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar al DOM temporalmente
+            document.body.appendChild(pdfContent);
             
             try {
-                const canvas = await html2canvas(contractElement, {
+                const canvas = await html2canvas(pdfContent, {
                     scale: 2,
                     useCORS: true,
-                    allowTaint: true
+                    allowTaint: true,
+                    backgroundColor: null,
+                    width: 794,
+                    height: 1123 // A4 height
                 });
                 
                 const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 190;
-                const pageHeight = 297;
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 let heightLeft = imgHeight;
-                let position = 10;
+                let position = 0;
                 
-                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
                 heightLeft -= pageHeight;
                 
                 while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight + 10;
+                    position = heightLeft - imgHeight;
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
                     heightLeft -= pageHeight;
                 }
                 
                 pdf.save(`Contrato_${currentContract.clientName.replace(/\s+/g, '_')}_${currentContract.id.substring(0, 8)}.pdf`);
+                
+                // Remover elemento temporal
+                document.body.removeChild(pdfContent);
+                
             } catch (error) {
                 console.error('Error al generar PDF:', error);
                 alert('Error al generar el PDF. Por favor intenta de nuevo.');
+                if (document.body.contains(pdfContent)) {
+                    document.body.removeChild(pdfContent);
+                }
             }
         }
 
@@ -793,5 +1073,5 @@
             window.open(whatsappUrl, '_blank');
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f333727332b1f2',t:'MTc1Nzg4NzY4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f39936f623c915',t:'MTc1Nzg5MTg1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
