@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBEPQwNyDTwj7-5fC0ksJQH6JRBmzielBA",
@@ -17,14 +17,14 @@
             projectId: "app-contratos-dolce-ensamble",
             storageBucket: "app-contratos-dolce-ensamble.firebasestorage.app",
             messagingSenderId: "892161363930",
-            appId: "1:892161363930:web:c98f9f7ed7bc53e3c63ae3",
+            appId: "1:892161363930:web:c98f9f7ed7bc53e3c63ae3c63ae3",
             measurementId: "G-NF3HCSFY7Y"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         window.db = db;
-        window.firestore = { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy };
+        window.firestore = { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, where };
     </script>
     <style>
         .signature-pad {
@@ -63,6 +63,17 @@
             </div>
             <form id="loginForm" class="space-y-6">
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Administrador</label>
+                    <select id="adminSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecciona tu usuario...</option>
+                        <option value="admin1">Administrador 1</option>
+                        <option value="admin2">Administrador 2</option>
+                        <option value="admin3">Administrador 3</option>
+                        <option value="admin4">Administrador 4</option>
+                        <option value="admin5">Administrador 5</option>
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
                     <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ingresa tu contraseña">
                 </div>
@@ -80,6 +91,7 @@
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-800">🎵 Dolce Ensamble - Panel Admin</h1>
+                        <span id="currentAdminName" class="ml-4 text-sm text-gray-600 bg-blue-100 px-3 py-1 rounded-full"></span>
                     </div>
                     <div class="flex items-center space-x-4">
                         <button id="newEventBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
@@ -88,8 +100,14 @@
                         <button id="contractSettingsBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200">
                             ⚙️ Configurar Contrato
                         </button>
-                        <button id="dataManagementBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
-                            📊 Gestión de Datos
+                        <button id="historyBtn" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition duration-200">
+                            📊 Historial
+                        </button>
+                        <button id="profileBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                            👤 Mi Perfil
+                        </button>
+                        <button id="dataManagementBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
+                            📁 Gestión de Datos
                         </button>
                         <button id="logoutBtn" class="text-gray-600 hover:text-gray-800">Cerrar Sesión</button>
                     </div>
@@ -128,6 +146,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creado por</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
@@ -140,11 +159,218 @@
         </div>
     </div>
 
+    <!-- Modal Perfil de Administrador -->
+    <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">👤 Mi Perfil</h2>
+                <button id="closeProfile" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="profileForm" class="p-6 space-y-6">
+                <!-- Información Personal -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Información Personal</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+                            <input type="text" id="adminName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID de Usuario</label>
+                            <input type="text" id="adminId" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cambiar Contraseña -->
+                <div class="border-b pb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Cambiar Contraseña</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña Actual</label>
+                            <input type="password" id="currentPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nueva Contraseña</label>
+                            <input type="password" id="newPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Nueva Contraseña</label>
+                            <input type="password" id="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+
+                
+                <div class="flex justify-end space-x-4 pt-6 border-t">
+                    <button type="button" id="cancelProfile" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Historial de Contratos -->
+    <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">📊 Historial de Contratos</h2>
+                <button id="closeHistory" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Filtros del Historial -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                            <input type="text" id="historySearch" placeholder="Código, evento, admin..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Acción</label>
+                            <select id="actionFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Todas las acciones</option>
+                                <option value="Contrato creado">Contrato creado</option>
+                                <option value="Contrato modificado">Contrato modificado</option>
+                                <option value="Contrato firmado">Contrato firmado</option>
+                                <option value="Contrato eliminado">Contrato eliminado</option>
+                                <option value="Contrato cancelado">Contrato cancelado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+                            <input type="date" id="dateFrom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
+                            <input type="date" id="dateTo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="filterHistory" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Filtrar
+                        </button>
+                        <button id="clearHistoryFilters" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                            Limpiar Filtros
+                        </button>
+                        <button id="exportHistoryBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            📤 Exportar CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Historial -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Administrador</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versión</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Los registros se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Exportar Historial -->
+    <div id="exportHistoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">📤 Exportar Historial</h2>
+                <button id="closeExportHistory" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Columnas</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportDate" checked class="mr-2">
+                            <span class="text-sm">Fecha/Hora</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportAction" checked class="mr-2">
+                            <span class="text-sm">Acción</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportAdmin" checked class="mr-2">
+                            <span class="text-sm">Administrador</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportCode" checked class="mr-2">
+                            <span class="text-sm">Código</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportEvent" checked class="mr-2">
+                            <span class="text-sm">Evento</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportCost" checked class="mr-2">
+                            <span class="text-sm">Costo</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="exportVersion" checked class="mr-2">
+                            <span class="text-sm">Versión</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+                        <input type="date" id="exportDateFrom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
+                        <input type="date" id="exportDateTo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-4 border-t">
+                    <button id="cancelExportHistory" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button id="confirmExportHistory" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Gestión de Datos -->
     <div id="dataManagementModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-gray-800">📊 Gestión de Datos</h2>
+                <h2 class="text-xl font-semibold text-gray-800">📁 Gestión de Datos</h2>
                 <button id="closeDataManagement" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -375,11 +601,45 @@
                 </div>
 
                 <!-- Cláusula Octava -->
-                <div>
+                <div class="border-b pb-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">✍️ Cláusula Octava: Validez de Firma Digital</h3>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Validez de Firma Digital</label>
                         <textarea id="digitalSignature" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <!-- Gestión de Firma del Administrador -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">✍️ Mi Firma Digital</h3>
+                    <div class="space-y-4">
+                        <!-- Firma Actual -->
+                        <div id="currentSignatureSection" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Firma Actual</label>
+                            <div class="border rounded-lg p-4 bg-gray-50">
+                                <img id="currentSignatureImg" src="" alt="Firma actual" class="max-h-20 max-w-48">
+                            </div>
+                        </div>
+
+                        <!-- Subir Nueva Firma -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Subir Nueva Firma (Imagen)</label>
+                            <input type="file" id="signatureUpload" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Crear Firma Digital -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">O Crear Firma Digital</label>
+                            <canvas id="signatureCanvas" width="400" height="150" class="signature-pad bg-white rounded-lg w-full border"></canvas>
+                            <div class="flex gap-2 mt-2">
+                                <button type="button" id="clearSignatureCanvas" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                                    Limpiar
+                                </button>
+                                <button type="button" id="saveCanvasSignature" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                    Usar Esta Firma
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -563,6 +823,13 @@
         let currentContract = null;
         let isDrawing = false;
         let signatureData = null;
+        let administrators = {
+            admin1: { name: 'Administrador 1', password: '123', signature: null },
+            admin2: { name: 'Administrador 2', password: '123', signature: null },
+            admin3: { name: 'Administrador 3', password: '123', signature: null },
+            admin4: { name: 'Administrador 4', password: '123', signature: null },
+            admin5: { name: 'Administrador 5', password: '123', signature: null }
+        };
         let contractSettings = {
             // Encabezado y Comparecencia
             companyName: 'DOLCE ENSAMBLE',
@@ -571,7 +838,7 @@
             companyPhone: '+52 811 047 4854',
             companyEmail: 'contacto@dolceensamble.com',
             contractPlace: 'Monterrey, Nuevo León',
-            showRFC: 'true',
+            showRFC: 'false',
             
             // Cláusula Primera: Objeto del Contrato
             serviceDescription: 'Prestación de servicios musicales profesionales con ensamble en vivo para evento social/corporativo, incluyendo interpretación musical, equipo de sonido profesional y ambientación musical según cotización anexa.',
@@ -607,6 +874,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             checkURLParams();
             setupEventListeners();
+            loadAdministrators();
             loadContractSettings();
         });
 
@@ -629,15 +897,36 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
             document.getElementById('newEventBtn').addEventListener('click', () => openEventModal());
             document.getElementById('contractSettingsBtn').addEventListener('click', openContractSettings);
+            document.getElementById('historyBtn').addEventListener('click', openHistory);
+            document.getElementById('profileBtn').addEventListener('click', openProfile);
             document.getElementById('dataManagementBtn').addEventListener('click', openDataManagement);
             document.getElementById('closeModal').addEventListener('click', closeEventModal);
             document.getElementById('cancelBtn').addEventListener('click', closeEventModal);
             document.getElementById('eventForm').addEventListener('submit', handleEventSubmit);
             
+            // Profile
+            document.getElementById('closeProfile').addEventListener('click', closeProfile);
+            document.getElementById('cancelProfile').addEventListener('click', closeProfile);
+            document.getElementById('profileForm').addEventListener('submit', handleProfileSubmit);
+            
+            // History
+            document.getElementById('closeHistory').addEventListener('click', closeHistory);
+            document.getElementById('filterHistory').addEventListener('click', filterHistory);
+            document.getElementById('clearHistoryFilters').addEventListener('click', clearHistoryFilters);
+            document.getElementById('exportHistoryBtn').addEventListener('click', openExportHistory);
+            
+            // Export History
+            document.getElementById('closeExportHistory').addEventListener('click', closeExportHistory);
+            document.getElementById('cancelExportHistory').addEventListener('click', closeExportHistory);
+            document.getElementById('confirmExportHistory').addEventListener('click', exportHistory);
+            
             // Contract Settings
             document.getElementById('closeContractSettings').addEventListener('click', closeContractSettings);
             document.getElementById('cancelContractSettings').addEventListener('click', closeContractSettings);
             document.getElementById('contractSettingsForm').addEventListener('submit', handleContractSettingsSubmit);
+            document.getElementById('signatureUpload').addEventListener('change', handleSignatureUpload);
+            document.getElementById('clearSignatureCanvas').addEventListener('click', clearSignatureCanvas);
+            document.getElementById('saveCanvasSignature').addEventListener('click', saveCanvasSignature);
             
             // Data Management
             document.getElementById('closeDataManagement').addEventListener('click', closeDataManagement);
@@ -663,6 +952,381 @@
             document.getElementById('saveSignature').addEventListener('click', saveSignature);
             document.getElementById('downloadPDF').addEventListener('click', downloadContractPDF);
             document.getElementById('contactAdmin').addEventListener('click', contactAdmin);
+            
+            // Setup signature canvas for profile
+            setupProfileSignatureCanvas();
+        }
+
+        // Gestión de administradores
+        async function loadAdministrators() {
+            try {
+                const docRef = window.firestore.doc(window.db, 'settings', 'administrators');
+                const docSnap = await window.firestore.getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    administrators = { ...administrators, ...docSnap.data() };
+                }
+            } catch (error) {
+                console.error('Error al cargar administradores:', error);
+            }
+        }
+
+        async function saveAdministrators() {
+            try {
+                const docRef = window.firestore.doc(window.db, 'settings', 'administrators');
+                await window.firestore.updateDoc(docRef, administrators);
+            } catch (error) {
+                // Si el documento no existe, lo creamos
+                await window.firestore.addDoc(window.firestore.collection(window.db, 'settings'), {
+                    ...administrators,
+                    id: 'administrators'
+                });
+            }
+        }
+
+        // Perfil de administrador
+        function openProfile() {
+            document.getElementById('profileModal').classList.remove('hidden');
+            fillProfileForm();
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        function fillProfileForm() {
+            const admin = administrators[currentUser];
+            document.getElementById('adminName').value = admin.name;
+            document.getElementById('adminId').value = currentUser;
+            
+            // Limpiar campos de contraseña
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        async function handleProfileSubmit(e) {
+            e.preventDefault();
+            
+            const adminName = document.getElementById('adminName').value;
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validar contraseña actual si se quiere cambiar
+            if (newPassword) {
+                if (currentPassword !== administrators[currentUser].password) {
+                    alert('La contraseña actual es incorrecta');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    alert('Las contraseñas nuevas no coinciden');
+                    return;
+                }
+                
+                if (newPassword.length < 3) {
+                    alert('La nueva contraseña debe tener al menos 3 caracteres');
+                    return;
+                }
+            }
+            
+            // Actualizar datos del administrador
+            administrators[currentUser].name = adminName;
+            if (newPassword) {
+                administrators[currentUser].password = newPassword;
+            }
+            
+            try {
+                await saveAdministrators();
+                document.getElementById('currentAdminName').textContent = adminName;
+                closeProfile();
+                alert('Perfil actualizado exitosamente');
+            } catch (error) {
+                console.error('Error al actualizar perfil:', error);
+                alert('Error al actualizar el perfil');
+            }
+        }
+
+        function handleSignatureUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    administrators[currentUser].signature = event.target.result;
+                    document.getElementById('currentSignatureSection').classList.remove('hidden');
+                    document.getElementById('currentSignatureImg').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setupProfileSignatureCanvas() {
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            
+            // Configurar canvas
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            
+            // Eventos de mouse
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Eventos táctiles
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            function handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                                 e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+        }
+
+        function clearSignatureCanvas() {
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveCanvasSignature() {
+            const canvas = document.getElementById('signatureCanvas');
+            const signatureData = canvas.toDataURL();
+            
+            administrators[currentUser].signature = signatureData;
+            document.getElementById('currentSignatureSection').classList.remove('hidden');
+            document.getElementById('currentSignatureImg').src = signatureData;
+            
+            alert('Firma guardada. Recuerda guardar los cambios del perfil.');
+        }
+
+        // Historial de contratos
+        function openHistory() {
+            document.getElementById('historyModal').classList.remove('hidden');
+            loadHistory();
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        async function loadHistory() {
+            try {
+                const q = window.firestore.query(
+                    window.firestore.collection(window.db, 'contract_history'),
+                    window.firestore.orderBy('timestamp', 'desc')
+                );
+                const querySnapshot = await window.firestore.getDocs(q);
+                
+                const history = [];
+                querySnapshot.forEach((doc) => {
+                    history.push({ id: doc.id, ...doc.data() });
+                });
+                
+                displayHistory(history);
+            } catch (error) {
+                console.error('Error al cargar historial:', error);
+            }
+        }
+
+        function displayHistory(history) {
+            const tbody = document.getElementById('historyTable');
+            tbody.innerHTML = '';
+            
+            history.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm text-gray-900">
+                        ${new Date(record.timestamp).toLocaleString('es-ES')}
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="px-2 py-1 text-xs rounded-full ${getActionColor(record.action)}">
+                            ${record.action}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${record.adminName}</td>
+                    <td class="px-4 py-3 text-sm font-mono text-blue-600">${record.contractCode}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${record.eventName || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">
+                        ${record.cost ? '$' + parseFloat(record.cost).toLocaleString('es-MX') : '-'}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${record.version || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getActionColor(action) {
+            switch(action) {
+                case 'Contrato creado': return 'bg-green-100 text-green-800';
+                case 'Contrato modificado': return 'bg-blue-100 text-blue-800';
+                case 'Contrato firmado': return 'bg-purple-100 text-purple-800';
+                case 'Contrato eliminado': return 'bg-red-100 text-red-800';
+                case 'Contrato cancelado': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        async function addToHistory(action, contractId, contractData = {}) {
+            try {
+                const historyRecord = {
+                    action: action,
+                    adminId: currentUser,
+                    adminName: administrators[currentUser].name,
+                    contractId: contractId,
+                    contractCode: contractId.substring(0, 8).toUpperCase(),
+                    eventName: contractData.eventType || null,
+                    cost: contractData.eventPrice || null,
+                    version: contractData.contractVersion || null,
+                    timestamp: new Date().toISOString()
+                };
+                
+                await window.firestore.addDoc(window.firestore.collection(window.db, 'contract_history'), historyRecord);
+            } catch (error) {
+                console.error('Error al agregar al historial:', error);
+            }
+        }
+
+        function filterHistory() {
+            // Implementar filtrado del historial
+            loadHistory();
+        }
+
+        function clearHistoryFilters() {
+            document.getElementById('historySearch').value = '';
+            document.getElementById('actionFilter').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            loadHistory();
+        }
+
+        function openExportHistory() {
+            document.getElementById('exportHistoryModal').classList.remove('hidden');
+        }
+
+        function closeExportHistory() {
+            document.getElementById('exportHistoryModal').classList.add('hidden');
+        }
+
+        async function exportHistory() {
+            try {
+                // Obtener configuración de exportación
+                const columns = {
+                    date: document.getElementById('exportDate').checked,
+                    action: document.getElementById('exportAction').checked,
+                    admin: document.getElementById('exportAdmin').checked,
+                    code: document.getElementById('exportCode').checked,
+                    event: document.getElementById('exportEvent').checked,
+                    cost: document.getElementById('exportCost').checked,
+                    version: document.getElementById('exportVersion').checked
+                };
+                
+                const dateFrom = document.getElementById('exportDateFrom').value;
+                const dateTo = document.getElementById('exportDateTo').value;
+                
+                // Obtener datos del historial
+                let q = window.firestore.query(
+                    window.firestore.collection(window.db, 'contract_history'),
+                    window.firestore.orderBy('timestamp', 'desc')
+                );
+                
+                const querySnapshot = await window.firestore.getDocs(q);
+                let history = [];
+                querySnapshot.forEach((doc) => {
+                    history.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Filtrar por fechas si se especificaron
+                if (dateFrom || dateTo) {
+                    history = history.filter(record => {
+                        const recordDate = new Date(record.timestamp).toISOString().split('T')[0];
+                        if (dateFrom && recordDate < dateFrom) return false;
+                        if (dateTo && recordDate > dateTo) return false;
+                        return true;
+                    });
+                }
+                
+                if (history.length === 0) {
+                    alert('No hay registros para exportar con los filtros seleccionados');
+                    return;
+                }
+                
+                // Crear CSV
+                const headers = [];
+                if (columns.date) headers.push('Fecha/Hora');
+                if (columns.action) headers.push('Acción');
+                if (columns.admin) headers.push('Administrador');
+                if (columns.code) headers.push('Código');
+                if (columns.event) headers.push('Evento');
+                if (columns.cost) headers.push('Costo');
+                if (columns.version) headers.push('Versión');
+                
+                const csvContent = [
+                    headers.join(','),
+                    ...history.map(record => {
+                        const row = [];
+                        if (columns.date) row.push(`"${new Date(record.timestamp).toLocaleString('es-ES')}"`);
+                        if (columns.action) row.push(`"${record.action}"`);
+                        if (columns.admin) row.push(`"${record.adminName}"`);
+                        if (columns.code) row.push(record.contractCode);
+                        if (columns.event) row.push(`"${record.eventName || ''}"`);
+                        if (columns.cost) row.push(record.cost || '');
+                        if (columns.version) row.push(record.version || '');
+                        return row.join(',');
+                    })
+                ].join('\n');
+                
+                // Descargar archivo
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `historial_contratos_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                closeExportHistory();
+                alert('Historial exportado exitosamente');
+            } catch (error) {
+                console.error('Error al exportar historial:', error);
+                alert('Error al exportar el historial');
+            }
         }
 
         // Gestión de datos
@@ -696,7 +1360,7 @@
                 const headers = [
                     'ID', 'Cliente', 'Teléfono', 'Email', 'Tipo Evento', 'Fecha Evento', 
                     'Hora', 'Lugar', 'Duración', 'Precio', 'Estado', 'Servicios', 
-                    'Términos', 'Fecha Creación', 'Firmado'
+                    'Términos', 'Fecha Creación', 'Firmado', 'Creado por', 'Versión'
                 ];
 
                 const csvContent = [
@@ -716,7 +1380,9 @@
                         `"${(contract.eventServices || '').replace(/"/g, '""')}"`,
                         `"${(contract.eventTerms || '').replace(/"/g, '""')}"`,
                         contract.createdAt || '',
-                        contract.clientSignature ? 'Sí' : 'No'
+                        contract.clientSignature ? 'Sí' : 'No',
+                        contract.createdBy || '',
+                        contract.contractVersion || ''
                     ].join(','))
                 ].join('\n');
 
@@ -779,11 +1445,13 @@
                         eventServices: values[11].replace(/"/g, ''),
                         eventTerms: values[12].replace(/"/g, ''),
                         createdAt: values[13] || new Date().toISOString(),
-                        contractVersion: 1,
-                        adminSignature: true
+                        contractVersion: parseInt(values[16]) || 1,
+                        createdBy: currentUser,
+                        adminSignature: administrators[currentUser].signature
                     };
 
-                    await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), contractData);
+                    const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), contractData);
+                    await addToHistory('Contrato creado', docRef.id, contractData);
                     importedCount++;
                 }
 
@@ -798,7 +1466,6 @@
 
         async function syncToFirebase() {
             try {
-                // Esta función ya está implementada implícitamente ya que todos los datos se guardan en Firebase
                 alert('Los datos ya están sincronizados con Firebase automáticamente');
             } catch (error) {
                 console.error('Error al sincronizar:', error);
@@ -810,6 +1477,7 @@
             try {
                 await loadEvents();
                 await loadContractSettings();
+                await loadAdministrators();
                 alert('Datos actualizados desde Firebase exitosamente');
             } catch (error) {
                 console.error('Error al obtener datos:', error);
@@ -836,6 +1504,17 @@
                 });
 
                 await Promise.all(deletePromises);
+                
+                // También eliminar historial
+                const historyQ = window.firestore.query(window.firestore.collection(window.db, 'contract_history'));
+                const historySnapshot = await window.firestore.getDocs(historyQ);
+                
+                const historyDeletePromises = [];
+                historySnapshot.forEach((doc) => {
+                    historyDeletePromises.push(window.firestore.deleteDoc(doc.ref));
+                });
+
+                await Promise.all(historyDeletePromises);
                 
                 hideDeleteConfirmation();
                 closeDataManagement();
@@ -881,6 +1560,15 @@
             document.getElementById('confidentiality').value = contractSettings.confidentiality;
             document.getElementById('disputeResolution').value = contractSettings.disputeResolution;
             document.getElementById('digitalSignature').value = contractSettings.digitalSignature;
+            
+            // Mostrar firma actual del administrador
+            const admin = administrators[currentUser];
+            if (admin && admin.signature) {
+                document.getElementById('currentSignatureSection').classList.remove('hidden');
+                document.getElementById('currentSignatureImg').src = admin.signature;
+            } else {
+                document.getElementById('currentSignatureSection').classList.add('hidden');
+            }
         }
 
         async function handleContractSettingsSubmit(e) {
@@ -914,8 +1602,9 @@
 
             try {
                 await saveContractSettings();
+                await saveAdministrators(); // Guardar también los cambios de firma del administrador
                 closeContractSettings();
-                alert('Configuración guardada exitosamente');
+                alert('Configuración y firma guardadas exitosamente');
             } catch (error) {
                 console.error('Error al guardar configuración:', error);
                 alert('Error al guardar la configuración');
@@ -949,13 +1638,22 @@
         }
 
         // Autenticación
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
+            const selectedAdmin = document.getElementById('adminSelect').value;
             const password = document.getElementById('password').value;
             
-            if (password === 'admin123') {
-                currentUser = 'admin';
+            if (!selectedAdmin) {
+                alert('Por favor selecciona un administrador');
+                return;
+            }
+            
+            await loadAdministrators(); // Cargar datos más recientes
+            
+            if (administrators[selectedAdmin] && administrators[selectedAdmin].password === password) {
+                currentUser = selectedAdmin;
                 showAdminPanel();
+                document.getElementById('currentAdminName').textContent = administrators[selectedAdmin].name;
                 loadEvents();
             } else {
                 alert('Contraseña incorrecta');
@@ -965,6 +1663,7 @@
         function logout() {
             currentUser = null;
             showLoginScreen();
+            document.getElementById('loginForm').reset();
         }
 
         // Navegación entre pantallas
@@ -1043,7 +1742,8 @@
                 contractVersion: parseInt(document.getElementById('contractVersion').value),
                 eventServices: document.getElementById('eventServices').value,
                 eventTerms: document.getElementById('eventTerms').value,
-                adminSignature: true
+                createdBy: currentUser,
+                adminSignature: administrators[currentUser].signature
             };
 
             const editingId = document.getElementById('editingEventId').value;
@@ -1056,6 +1756,7 @@
                         ...eventData,
                         updatedAt: new Date().toISOString()
                     });
+                    await addToHistory('Contrato modificado', editingId, eventData);
                     closeEventModal();
                     loadEvents();
                     alert('Evento actualizado exitosamente');
@@ -1063,6 +1764,7 @@
                     // Crear nuevo evento
                     eventData.createdAt = new Date().toISOString();
                     const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), eventData);
+                    await addToHistory('Contrato creado', docRef.id, eventData);
                     closeEventModal();
                     showSuccessScreen(docRef.id);
                     loadEvents();
@@ -1127,6 +1829,9 @@
             tbody.innerHTML = '';
             
             events.forEach(event => {
+                const createdByName = event.createdBy && administrators[event.createdBy] ? 
+                    administrators[event.createdBy].name : 'Desconocido';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -1148,6 +1853,9 @@
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(event.status)}">
                             ${getStatusText(event.status)}
                         </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${createdByName}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button onclick="editEvent('${event.id}')" class="text-blue-600 hover:text-blue-900">Editar</button>
@@ -1216,7 +1924,11 @@
             if (confirm('¿Estás seguro de que deseas eliminar este contrato? Esta acción no se puede deshacer.')) {
                 try {
                     const docRef = window.firestore.doc(window.db, 'contracts', eventId);
+                    const docSnap = await window.firestore.getDoc(docRef);
+                    const contractData = docSnap.data();
+                    
                     await window.firestore.deleteDoc(docRef);
+                    await addToHistory('Contrato eliminado', eventId, contractData);
                     loadEvents();
                     alert('Contrato eliminado exitosamente');
                 } catch (error) {
@@ -1252,6 +1964,11 @@
                 year: 'numeric' 
             });
             
+            // Obtener información del administrador que creó el contrato
+            const adminInfo = contract.createdBy && administrators[contract.createdBy] ? 
+                administrators[contract.createdBy] : 
+                { name: 'Administrador', signature: null };
+            
             content.innerHTML = `
                 <div class="elegant-border rounded-lg p-8 bg-white relative z-10">
                     <!-- Encabezado -->
@@ -1261,7 +1978,7 @@
                         </div>
                         <h1 class="text-3xl font-bold text-blue-800 mb-2">🎵 ${contractSettings.companyName}</h1>
                         <h2 class="text-xl font-semibold text-gray-700">CONTRATO DE SERVICIOS MUSICALES</h2>
-                        <p class="text-sm text-gray-500 mt-2">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}</p>
+                        <p class="text-sm text-gray-500 mt-2">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}.0</p>
                         <p class="text-sm text-gray-600 mt-1">${contractSettings.contractPlace}, ${currentDate}</p>
                     </div>
                     
@@ -1272,6 +1989,7 @@
                             <div class="border rounded-lg p-4 bg-blue-50">
                                 <h4 class="font-semibold text-blue-800 mb-2">EL PRESTADOR:</h4>
                                 <p><strong>${contractSettings.companyName}</strong></p>
+                                <p>Representado por: <strong>${adminInfo.name}</strong></p>
                                 <p>Nacionalidad: ${contractSettings.companyNationality}</p>
                                 ${contractSettings.showRFC === 'true' ? `<p>Identificación: ${contractSettings.companyId}</p>` : ''}
                                 <p>Teléfono: ${contractSettings.companyPhone}</p>
@@ -1288,6 +2006,25 @@
                                     <p><strong>Hora:</strong> ${contract.eventTime}</p>
                                     <p><strong>Lugar:</strong> ${contract.eventLocation}</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Firmas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="text-center">
+                            <div class="border-t-2 border-gray-400 pt-4">
+                                <p class="text-sm font-semibold text-gray-800">${adminInfo.name}</p>
+                                <p class="text-xs text-gray-600">${contractSettings.companyName}</p>
+                                <p class="text-xs text-gray-500">EL PRESTADOR</p>
+                                ${adminInfo.signature ? `<img src="${adminInfo.signature}" alt="Firma del prestador" class="mx-auto mt-2 max-h-16 max-w-32">` : '<div class="h-16 flex items-center justify-center text-gray-400 text-xs">Sin firma</div>'}
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="border-t-2 border-gray-400 pt-4">
+                                <p class="text-sm font-semibold text-gray-800">${contract.clientName}</p>
+                                <p class="text-xs text-gray-500">EL CONTRATANTE</p>
+                                ${contract.clientSignature ? `<img src="${contract.clientSignature}" alt="Firma del cliente" class="mx-auto mt-2 max-h-16 max-w-32">` : '<div class="h-16 flex items-center justify-center text-gray-400 text-xs">Pendiente de firma</div>'}
                             </div>
                         </div>
                     </div>
@@ -1325,540 +2062,5 @@
                         </div>
                         
                         <!-- Cláusula Quinta -->
-                        <div class="border-l-4 border-red-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA QUINTA: TIEMPO EXTRA Y PUNTUALIDAD</h4>
-                            <p class="mb-2">${contractSettings.arrivalTime}</p>
-                            <p>${contractSettings.overtimePolicy}</p>
-                        </div>
-                        
-                        <!-- Cláusula Sexta -->
-                        <div class="border-l-4 border-pink-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SEXTA: DERECHOS DE IMAGEN Y CONFIDENCIALIDAD</h4>
-                            <p class="mb-2">${contractSettings.imageRights}</p>
-                            <p>${contractSettings.confidentiality}</p>
-                        </div>
-                        
-                        <!-- Cláusula Séptima -->
-                        <div class="border-l-4 border-indigo-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SÉPTIMA: SOLUCIÓN DE CONTROVERSIAS</h4>
-                            <p>${contractSettings.disputeResolution}</p>
-                        </div>
-                        
-                        <!-- Cláusula Octava -->
-                        <div class="border-l-4 border-gray-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA OCTAVA: VALIDEZ DE FIRMA DIGITAL</h4>
-                            <p>${contractSettings.digitalSignature}</p>
-                        </div>
-                        
-                        ${contract.eventTerms ? `
-                        <div class="border-l-4 border-yellow-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">TÉRMINOS ADICIONALES ESPECÍFICOS</h4>
-                            <p>${contract.eventTerms}</p>
-                        </div>
-                        ` : ''}
-                    </div>
-                    
-                    <!-- Aceptación y Firmas -->
-                    <div class="mt-12 pt-8 border-t-2 border-gray-300">
-                        <div class="text-center mb-8">
-                            <h3 class="font-bold text-gray-800 mb-2">ACEPTACIÓN DEL CONTRATO</h3>
-                            <p class="text-sm text-gray-600">Las partes manifiestan haber leído y comprendido el presente contrato, aceptando todos sus términos y condiciones.</p>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="text-center">
-                                <div class="border-b-2 border-gray-400 pb-2 mb-2 h-20 flex items-center justify-center">
-                                    <div class="flex flex-col items-center">
-                                        <img src="https://i.postimg.cc/brHH6rDN/firma-rolando.jpg" alt="Firma Prestador" class="max-h-12 max-w-32 mb-1" onerror="this.style.display='none';">
-                                        <p class="text-sm font-semibold">${contractSettings.companyName}</p>
-                                        <p class="text-xs text-gray-600">Representante Legal</p>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-gray-500">EL PRESTADOR</p>
-                                <p class="text-xs text-gray-500 mt-1">${contractSettings.companyPhone}</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="border-b-2 border-gray-400 pb-2 mb-2 h-20 flex items-center justify-center" id="clientSignatureArea">
-                                    ${contract.clientSignature ? 
-                                        `<img src="${contract.clientSignature}" alt="Firma del cliente" class="max-h-16 max-w-48">` : 
-                                        '<p class="text-gray-400">Pendiente de firma</p>'
-                                    }
-                                </div>
-                                <p class="text-xs text-gray-500">EL CONTRATANTE</p>
-                                <p class="text-xs font-medium">${contract.clientName}</p>
-                                <p class="text-xs text-gray-500 mt-1">${contract.clientPhone}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Anexo de Cotización -->
-                    <div class="mt-8 pt-6 border-t border-gray-200 bg-gray-50 rounded-lg p-4">
-                        <h3 class="font-bold text-gray-800 mb-4 text-center">ANEXO - COTIZACIÓN</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <h4 class="font-semibold mb-2">Detalles del Servicio:</h4>
-                                <p>• Tipo de evento: ${contract.eventType}</p>
-                                <p>• Duración: ${contract.eventDuration} horas</p>
-                                <p>• Fecha: ${new Date(contract.eventDate).toLocaleDateString('es-ES')}</p>
-                                <p>• Lugar: ${contract.eventLocation}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-2">Desglose de Costos:</h4>
-                                <p>• Honorarios del ensamble: Incluido</p>
-                                <p>• Equipo de sonido: Incluido</p>
-                                <p>• Gastos de traslado: Incluido</p>
-                                <p class="font-bold border-t pt-2 mt-2">Total: $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Pie de página -->
-                    <div class="text-center text-xs text-gray-400 mt-8 pt-4 border-t">
-                        <p>Contrato generado el ${new Date(contract.createdAt).toLocaleDateString('es-ES')}</p>
-                        <p>${contractSettings.companyName} - Servicios Musicales Profesionales</p>
-                        <p>Este documento tiene validez legal conforme a la legislación mexicana vigente</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Firma digital
-        function setupSignaturePad() {
-            const canvas = document.getElementById('signaturePad');
-            const ctx = canvas.getContext('2d');
-            
-            // Configurar canvas
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            
-            // Eventos de mouse
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            
-            // Eventos táctiles
-            canvas.addEventListener('touchstart', handleTouch);
-            canvas.addEventListener('touchmove', handleTouch);
-            canvas.addEventListener('touchend', stopDrawing);
-            
-            function startDrawing(e) {
-                isDrawing = true;
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-            }
-            
-            function draw(e) {
-                if (!isDrawing) return;
-                e.preventDefault();
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                ctx.lineTo(x, y);
-                ctx.stroke();
-            }
-            
-            function stopDrawing() {
-                isDrawing = false;
-            }
-            
-            function handleTouch(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
-                                                 e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            }
-        }
-
-        function clearSignature() {
-            const canvas = document.getElementById('signaturePad');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            signatureData = null;
-        }
-
-        async function saveSignature() {
-            const canvas = document.getElementById('signaturePad');
-            signatureData = canvas.toDataURL();
-            
-            try {
-                const docRef = window.firestore.doc(window.db, 'contracts', currentContract.id);
-                await window.firestore.updateDoc(docRef, {
-                    clientSignature: signatureData,
-                    status: 'firmado',
-                    signedAt: new Date().toISOString()
-                });
-                
-                currentContract.clientSignature = signatureData;
-                currentContract.status = 'firmado';
-                displayContract(currentContract);
-                
-                alert('¡Firma guardada exitosamente!');
-            } catch (error) {
-                console.error('Error al guardar firma:', error);
-                alert('Error al guardar la firma. Por favor intenta de nuevo.');
-            }
-        }
-
-        function downloadContractPDF() {
-            if (!currentContract.clientSignature) {
-                alert('Por favor firma el contrato antes de descargarlo.');
-                return;
-            }
-            
-            // Método alternativo: usar window.print() con estilos específicos para impresión
-            const printWindow = window.open('', '_blank');
-            const currentDate = new Date().toLocaleDateString('es-ES', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric' 
-            });
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Contrato ${currentContract.clientName}</title>
-                    <style>
-                        @page {
-                            size: A4;
-                            margin: 20mm;
-                        }
-                        body {
-                            font-family: Arial, sans-serif;
-                            font-size: 12px;
-                            line-height: 1.4;
-                            color: #333;
-                            margin: 0;
-                            padding: 0;
-                        }
-                        .contract-container {
-                            max-width: 100%;
-                            margin: 0 auto;
-                            background: white;
-                            padding: 20px;
-                            border: 2px solid #1e40af;
-                            border-radius: 8px;
-                        }
-                        .header {
-                            text-align: center;
-                            margin-bottom: 20px;
-                        }
-                        .header h1 {
-                            font-size: 24px;
-                            color: #1e40af;
-                            margin: 10px 0;
-                        }
-                        .header h2 {
-                            font-size: 16px;
-                            color: #374151;
-                            margin: 5px 0;
-                        }
-                        .header p {
-                            font-size: 10px;
-                            color: #6b7280;
-                            margin: 2px 0;
-                        }
-                        .comparecencia {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 20px;
-                            margin-bottom: 20px;
-                        }
-                        .party-box {
-                            border: 1px solid #d1d5db;
-                            border-radius: 6px;
-                            padding: 12px;
-                        }
-                        .prestador {
-                            background: #eff6ff;
-                            border-color: #3b82f6;
-                        }
-                        .contratante {
-                            background: #f0fdf4;
-                            border-color: #10b981;
-                        }
-                        .party-title {
-                            font-weight: bold;
-                            font-size: 11px;
-                            margin-bottom: 8px;
-                        }
-                        .prestador .party-title {
-                            color: #1e40af;
-                        }
-                        .contratante .party-title {
-                            color: #059669;
-                        }
-                        .party-box p {
-                            margin: 2px 0;
-                            font-size: 10px;
-                        }
-                        .clause {
-                            margin-bottom: 15px;
-                            padding-left: 10px;
-                            border-left: 4px solid #6b7280;
-                        }
-                        .clause h4 {
-                            font-size: 11px;
-                            font-weight: bold;
-                            color: #374151;
-                            margin-bottom: 5px;
-                        }
-                        .clause p {
-                            font-size: 10px;
-                            margin: 3px 0;
-                        }
-                        .clause-1 { border-left-color: #3b82f6; }
-                        .clause-2 { border-left-color: #10b981; }
-                        .clause-3 { border-left-color: #8b5cf6; }
-                        .clause-4 { border-left-color: #f59e0b; }
-                        .clause-5 { border-left-color: #ef4444; }
-                        .clause-6 { border-left-color: #ec4899; }
-                        .clause-7 { border-left-color: #6366f1; }
-                        .clause-8 { border-left-color: #6b7280; }
-                        .signatures {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 30px;
-                            margin-top: 25px;
-                            padding-top: 20px;
-                            border-top: 2px solid #374151;
-                        }
-                        .signature-box {
-                            text-align: center;
-                        }
-                        .signature-line {
-                            border-bottom: 2px solid #374151;
-                            height: 50px;
-                            margin-bottom: 8px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        .signature-line img {
-                            max-height: 40px;
-                            max-width: 150px;
-                        }
-                        .signature-label {
-                            font-size: 9px;
-                            color: #6b7280;
-                        }
-                        .signature-name {
-                            font-size: 9px;
-                            font-weight: 600;
-                            margin: 2px 0;
-                        }
-                        .anexo {
-                            margin-top: 20px;
-                            padding: 15px;
-                            border: 1px solid #d1d5db;
-                            border-radius: 6px;
-                            background: #f9fafb;
-                        }
-                        .anexo h3 {
-                            font-size: 11px;
-                            font-weight: bold;
-                            text-align: center;
-                            margin-bottom: 10px;
-                        }
-                        .anexo-grid {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 15px;
-                            font-size: 9px;
-                        }
-                        .footer {
-                            text-align: center;
-                            font-size: 8px;
-                            color: #9ca3af;
-                            margin-top: 20px;
-                            padding-top: 15px;
-                            border-top: 1px solid #e5e7eb;
-                        }
-                        .footer p {
-                            margin: 1px 0;
-                        }
-                        @media print {
-                            .contract-container {
-                                border: none;
-                                padding: 0;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="contract-container">
-                        <!-- Encabezado -->
-                        <div class="header">
-                            <h1>🎵 ${contractSettings.companyName}</h1>
-                            <h2>CONTRATO DE SERVICIOS MUSICALES</h2>
-                            <p>Contrato No. ${currentContract.id.substring(0, 8).toUpperCase()} - Versión ${currentContract.contractVersion}</p>
-                            <p>${contractSettings.contractPlace}, ${currentDate}</p>
-                        </div>
-                        
-                        <!-- Comparecencia -->
-                        <h3 style="text-align: center; font-size: 12px; margin-bottom: 15px;">COMPARECENCIA</h3>
-                        <div class="comparecencia">
-                            <div class="party-box prestador">
-                                <div class="party-title">EL PRESTADOR:</div>
-                                <p><strong>${contractSettings.companyName}</strong></p>
-                                <p>Nacionalidad: ${contractSettings.companyNationality}</p>
-                                ${contractSettings.showRFC === 'true' ? `<p>Identificación: ${contractSettings.companyId}</p>` : ''}
-                                <p>Teléfono: ${contractSettings.companyPhone}</p>
-                                <p>Email: ${contractSettings.companyEmail}</p>
-                            </div>
-                            <div class="party-box contratante">
-                                <div class="party-title">EL CONTRATANTE:</div>
-                                <p><strong>${currentContract.clientName}</strong></p>
-                                <p>Teléfono: ${currentContract.clientPhone}</p>
-                                ${currentContract.clientEmail ? `<p>Email: ${currentContract.clientEmail}</p>` : ''}
-                                <p><strong>Evento:</strong> ${currentContract.eventType}</p>
-                                <p><strong>Fecha:</strong> ${new Date(currentContract.eventDate).toLocaleDateString('es-ES')}</p>
-                                <p><strong>Lugar:</strong> ${currentContract.eventLocation}</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Cláusulas -->
-                        <div class="clause clause-1">
-                            <h4>CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h4>
-                            <p>${contractSettings.serviceDescription}</p>
-                            <p><strong>Duración:</strong> ${currentContract.eventDuration} horas</p>
-                            <p><strong>Servicios:</strong> ${currentContract.eventServices || 'Según cotización anexa'}</p>
-                        </div>
-                        
-                        <div class="clause clause-2">
-                            <h4>CLÁUSULA SEGUNDA: POLÍTICA DE PAGO Y CANCELACIÓN</h4>
-                            <p><strong>Precio total:</strong> $${parseFloat(currentContract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                            ${currentContract.advancePayment ? `<p><strong>Anticipo recibido:</strong> $${parseFloat(currentContract.advancePayment).toLocaleString('es-MX')} MXN</p>` : ''}
-                            <p><strong>Forma de pago:</strong> ${contractSettings.paymentPolicy}</p>
-                            <p><strong>Cancelaciones:</strong> ${contractSettings.cancellationPolicy}</p>
-                        </div>
-                        
-                        <div class="clause clause-3">
-                            <h4>CLÁUSULA TERCERA: REPERTORIO Y MÚSICA ADICIONAL</h4>
-                            <p>${contractSettings.repertoirePolicy}</p>
-                            <p>${contractSettings.additionalSongsCost}</p>
-                        </div>
-                        
-                        <div class="clause clause-4">
-                            <h4>CLÁUSULA CUARTA: LOGÍSTICA Y RESPONSABILIDADES</h4>
-                            <p>${contractSettings.logisticsRequirements}</p>
-                            <p>${contractSettings.equipmentResponsibility}</p>
-                        </div>
-                        
-                        <div class="clause clause-5">
-                            <h4>CLÁUSULA QUINTA: TIEMPO EXTRA Y PUNTUALIDAD</h4>
-                            <p>${contractSettings.arrivalTime}</p>
-                            <p>${contractSettings.overtimePolicy}</p>
-                        </div>
-                        
-                        <div class="clause clause-6">
-                            <h4>CLÁUSULA SEXTA: DERECHOS DE IMAGEN Y CONFIDENCIALIDAD</h4>
-                            <p>${contractSettings.imageRights}</p>
-                            <p>${contractSettings.confidentiality}</p>
-                        </div>
-                        
-                        <div class="clause clause-7">
-                            <h4>CLÁUSULA SÉPTIMA: SOLUCIÓN DE CONTROVERSIAS</h4>
-                            <p>${contractSettings.disputeResolution}</p>
-                        </div>
-                        
-                        <div class="clause clause-8">
-                            <h4>CLÁUSULA OCTAVA: VALIDEZ DE FIRMA DIGITAL</h4>
-                            <p>${contractSettings.digitalSignature}</p>
-                        </div>
-                        
-                        ${currentContract.eventTerms ? `
-                        <div class="clause" style="border-left-color: #eab308;">
-                            <h4>TÉRMINOS ADICIONALES ESPECÍFICOS</h4>
-                            <p>${currentContract.eventTerms}</p>
-                        </div>
-                        ` : ''}
-                        
-                        <!-- Aceptación -->
-                        <div style="text-align: center; margin: 20px 0;">
-                            <h3 style="font-size: 11px; margin-bottom: 5px;">ACEPTACIÓN DEL CONTRATO</h3>
-                            <p style="font-size: 9px;">Las partes manifiestan haber leído y comprendido el presente contrato, aceptando todos sus términos y condiciones.</p>
-                        </div>
-                        
-                        <!-- Firmas -->
-                        <div class="signatures">
-                            <div class="signature-box">
-                                <div class="signature-line">
-                                    <img src="https://i.postimg.cc/brHH6rDN/firma-rolando.jpg" alt="Firma Prestador" onerror="this.style.display='none';">
-                                </div>
-                                <div class="signature-label">EL PRESTADOR</div>
-                                <div class="signature-name">${contractSettings.companyName}</div>
-                                <div class="signature-label">${contractSettings.companyPhone}</div>
-                            </div>
-                            <div class="signature-box">
-                                <div class="signature-line">
-                                    ${currentContract.clientSignature ? 
-                                        `<img src="${currentContract.clientSignature}" alt="Firma Cliente">` : 
-                                        '<span style="color: #9ca3af; font-size: 9px;">Pendiente de firma</span>'
-                                    }
-                                </div>
-                                <div class="signature-label">EL CONTRATANTE</div>
-                                <div class="signature-name">${currentContract.clientName}</div>
-                                <div class="signature-label">${currentContract.clientPhone}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Anexo -->
-                        <div class="anexo">
-                            <h3>ANEXO - COTIZACIÓN</h3>
-                            <div class="anexo-grid">
-                                <div>
-                                    <h4 style="font-weight: bold; margin-bottom: 5px;">Detalles del Servicio:</h4>
-                                    <p>• Tipo de evento: ${currentContract.eventType}</p>
-                                    <p>• Duración: ${currentContract.eventDuration} horas</p>
-                                    <p>• Fecha: ${new Date(currentContract.eventDate).toLocaleDateString('es-ES')}</p>
-                                    <p>• Lugar: ${currentContract.eventLocation}</p>
-                                </div>
-                                <div>
-                                    <h4 style="font-weight: bold; margin-bottom: 5px;">Desglose de Costos:</h4>
-                                    <p>• Honorarios del ensamble: Incluido</p>
-                                    <p>• Equipo de sonido: Incluido</p>
-                                    <p>• Gastos de traslado: Incluido</p>
-                                    <p style="font-weight: bold; border-top: 1px solid #d1d5db; padding-top: 5px; margin-top: 5px;">Total: $${parseFloat(currentContract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Pie de página -->
-                        <div class="footer">
-                            <p>Contrato generado el ${new Date(currentContract.createdAt).toLocaleDateString('es-ES')}</p>
-                            <p>${contractSettings.companyName} - Servicios Musicales Profesionales</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-            
-            // Esperar a que se cargue el contenido y luego imprimir
-            printWindow.onload = function() {
-                setTimeout(() => {
-                    printWindow.print();
-                    // No cerrar automáticamente para que el usuario pueda guardar como PDF
-                }, 1000);
-            };
-        }
-
-        function contactAdmin() {
-            const message = `Hola, soy ${currentContract.clientName}. Mi contrato es ${currentContract.id.substring(0, 8).toUpperCase()} para el evento del ${new Date(currentContract.eventDate).toLocaleDateString('es-ES')}. Necesito contactarte sobre:`;
-            const whatsappUrl = `https://wa.me/528110474854?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f8dcba271eaec5',t:'MTc1Nzk0NzA0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+                        <div class="border-l-4
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f9867217fdb6e7',t:'MTc1Nzk1Mzk5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
