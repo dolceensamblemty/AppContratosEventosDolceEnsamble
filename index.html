@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBEPQwNyDTwj7-5fC0ksJQH6JRBmzielBA",
@@ -24,7 +24,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         window.db = db;
-        window.firestore = { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, orderBy };
+        window.firestore = { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy };
     </script>
     <style>
         .signature-pad {
@@ -88,6 +88,9 @@
                         <button id="contractSettingsBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200">
                             ⚙️ Configurar Contrato
                         </button>
+                        <button id="dataManagementBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                            📊 Gestión de Datos
+                        </button>
                         <button id="logoutBtn" class="text-gray-600 hover:text-gray-800">Cerrar Sesión</button>
                     </div>
                 </div>
@@ -106,6 +109,7 @@
                         <option value="pendiente">Pendiente</option>
                         <option value="firmado">Firmado</option>
                         <option value="completado">Completado</option>
+                        <option value="cancelado">Cancelado</option>
                     </select>
                 </div>
             </div>
@@ -130,6 +134,96 @@
                             <!-- Los eventos se cargarán aquí -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gestión de Datos -->
+    <div id="dataManagementModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">📊 Gestión de Datos</h2>
+                <button id="closeDataManagement" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Exportar/Importar CSV -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📄 Exportar/Importar CSV</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <button id="exportCSV" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                                📤 Exportar Contratos a CSV
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Descarga todos los contratos en formato CSV</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Importar desde CSV</label>
+                            <input type="file" id="importCSV" accept=".csv" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <button id="processImport" class="w-full mt-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                                📥 Procesar Importación
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Importa contratos desde un archivo CSV</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sincronización Firebase -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 Sincronización Firebase</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <button id="syncToFirebase" class="w-full bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition duration-200">
+                                ☁️ Sincronizar a Firebase
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Sube todos los datos locales a Firebase</p>
+                        </div>
+                        <div>
+                            <button id="syncFromFirebase" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200">
+                                📥 Obtener de Firebase
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Descarga y actualiza con datos de Firebase</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eliminar Datos -->
+                <div class="border border-red-200 rounded-lg p-4 bg-red-50">
+                    <h3 class="text-lg font-semibold text-red-800 mb-4">🗑️ Eliminar Datos</h3>
+                    <div>
+                        <button id="deleteAllData" class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200">
+                            ⚠️ Eliminar Todos los Registros
+                        </button>
+                        <p class="text-sm text-red-600 mt-2">⚠️ Esta acción no se puede deshacer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación Eliminar -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-4">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 text-center mb-2">¿Eliminar todos los registros?</h3>
+                <p class="text-sm text-gray-500 text-center mb-6">Esta acción eliminará permanentemente todos los contratos y no se puede deshacer.</p>
+                <div class="flex space-x-4">
+                    <button id="cancelDelete" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button id="confirmDelete" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        Eliminar Todo
+                    </button>
                 </div>
             </div>
         </div>
@@ -163,6 +257,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">RFC/Identificación</label>
                             <input type="text" id="companyId" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mostrar RFC en Contrato</label>
+                            <select id="showRFC" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="true">Sí, mostrar RFC</option>
+                                <option value="false">No mostrar RFC</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Lugar del Contrato</label>
@@ -326,14 +427,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Evento *</label>
-                        <select id="eventType" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Seleccionar...</option>
-                            <option value="boda">Boda</option>
-                            <option value="quinceanos">XV Años</option>
-                            <option value="corporativo">Evento Corporativo</option>
-                            <option value="cumpleanos">Cumpleaños</option>
-                            <option value="otro">Otro</option>
-                        </select>
+                        <input type="text" id="eventType" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej. Boda, XV Años, Cumpleaños, Evento Corporativo...">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Fecha del Evento *</label>
@@ -356,11 +450,16 @@
                         <input type="number" id="eventPrice" required min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Anticipo Recibido</label>
+                        <input type="number" id="advancePayment" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej. 2000">
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Estado del Contrato</label>
                         <select id="contractStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                             <option value="pendiente">Pendiente</option>
                             <option value="firmado">Firmado</option>
                             <option value="completado">Completado</option>
+                            <option value="cancelado">Cancelado</option>
                         </select>
                     </div>
                     <div class="md:col-span-2">
@@ -466,6 +565,7 @@
             companyPhone: '+52 811 047 4854',
             companyEmail: 'contacto@dolceensamble.com',
             contractPlace: 'Monterrey, Nuevo León',
+            showRFC: 'true',
             
             // Cláusula Primera: Objeto del Contrato
             serviceDescription: 'Prestación de servicios musicales profesionales con ensamble en vivo para evento social/corporativo, incluyendo interpretación musical, equipo de sonido profesional y ambientación musical según cotización anexa.',
@@ -523,6 +623,7 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
             document.getElementById('newEventBtn').addEventListener('click', () => openEventModal());
             document.getElementById('contractSettingsBtn').addEventListener('click', openContractSettings);
+            document.getElementById('dataManagementBtn').addEventListener('click', openDataManagement);
             document.getElementById('closeModal').addEventListener('click', closeEventModal);
             document.getElementById('cancelBtn').addEventListener('click', closeEventModal);
             document.getElementById('eventForm').addEventListener('submit', handleEventSubmit);
@@ -531,6 +632,16 @@
             document.getElementById('closeContractSettings').addEventListener('click', closeContractSettings);
             document.getElementById('cancelContractSettings').addEventListener('click', closeContractSettings);
             document.getElementById('contractSettingsForm').addEventListener('submit', handleContractSettingsSubmit);
+            
+            // Data Management
+            document.getElementById('closeDataManagement').addEventListener('click', closeDataManagement);
+            document.getElementById('exportCSV').addEventListener('click', exportToCSV);
+            document.getElementById('processImport').addEventListener('click', importFromCSV);
+            document.getElementById('syncToFirebase').addEventListener('click', syncToFirebase);
+            document.getElementById('syncFromFirebase').addEventListener('click', syncFromFirebase);
+            document.getElementById('deleteAllData').addEventListener('click', showDeleteConfirmation);
+            document.getElementById('cancelDelete').addEventListener('click', hideDeleteConfirmation);
+            document.getElementById('confirmDelete').addEventListener('click', deleteAllData);
             
             // Búsqueda
             document.getElementById('searchInput').addEventListener('input', filterEvents);
@@ -546,6 +657,188 @@
             document.getElementById('saveSignature').addEventListener('click', saveSignature);
             document.getElementById('downloadPDF').addEventListener('click', downloadContractPDF);
             document.getElementById('contactAdmin').addEventListener('click', contactAdmin);
+        }
+
+        // Gestión de datos
+        function openDataManagement() {
+            document.getElementById('dataManagementModal').classList.remove('hidden');
+        }
+
+        function closeDataManagement() {
+            document.getElementById('dataManagementModal').classList.add('hidden');
+        }
+
+        async function exportToCSV() {
+            try {
+                const q = window.firestore.query(
+                    window.firestore.collection(window.db, 'contracts'),
+                    window.firestore.orderBy('createdAt', 'desc')
+                );
+                const querySnapshot = await window.firestore.getDocs(q);
+                
+                const contracts = [];
+                querySnapshot.forEach((doc) => {
+                    contracts.push({ id: doc.id, ...doc.data() });
+                });
+
+                if (contracts.length === 0) {
+                    alert('No hay contratos para exportar');
+                    return;
+                }
+
+                // Crear CSV
+                const headers = [
+                    'ID', 'Cliente', 'Teléfono', 'Email', 'Tipo Evento', 'Fecha Evento', 
+                    'Hora', 'Lugar', 'Duración', 'Precio', 'Estado', 'Servicios', 
+                    'Términos', 'Fecha Creación', 'Firmado'
+                ];
+
+                const csvContent = [
+                    headers.join(','),
+                    ...contracts.map(contract => [
+                        contract.id,
+                        `"${contract.clientName || ''}"`,
+                        contract.clientPhone || '',
+                        contract.clientEmail || '',
+                        contract.eventType || '',
+                        contract.eventDate || '',
+                        contract.eventTime || '',
+                        `"${contract.eventLocation || ''}"`,
+                        contract.eventDuration || '',
+                        contract.eventPrice || '',
+                        contract.status || '',
+                        `"${(contract.eventServices || '').replace(/"/g, '""')}"`,
+                        `"${(contract.eventTerms || '').replace(/"/g, '""')}"`,
+                        contract.createdAt || '',
+                        contract.clientSignature ? 'Sí' : 'No'
+                    ].join(','))
+                ].join('\n');
+
+                // Descargar archivo
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `contratos_dolce_ensamble_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                alert('Archivo CSV exportado exitosamente');
+            } catch (error) {
+                console.error('Error al exportar CSV:', error);
+                alert('Error al exportar los datos');
+            }
+        }
+
+        async function importFromCSV() {
+            const fileInput = document.getElementById('importCSV');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Por favor selecciona un archivo CSV');
+                return;
+            }
+
+            try {
+                const text = await file.text();
+                const lines = text.split('\n');
+                const headers = lines[0].split(',');
+
+                if (lines.length < 2) {
+                    alert('El archivo CSV está vacío o no tiene datos');
+                    return;
+                }
+
+                let importedCount = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    const values = line.split(',');
+                    if (values.length < headers.length) continue;
+
+                    const contractData = {
+                        clientName: values[1].replace(/"/g, ''),
+                        clientPhone: values[2],
+                        clientEmail: values[3],
+                        eventType: values[4],
+                        eventDate: values[5],
+                        eventTime: values[6],
+                        eventLocation: values[7].replace(/"/g, ''),
+                        eventDuration: values[8],
+                        eventPrice: values[9],
+                        status: values[10] || 'pendiente',
+                        eventServices: values[11].replace(/"/g, ''),
+                        eventTerms: values[12].replace(/"/g, ''),
+                        createdAt: values[13] || new Date().toISOString(),
+                        contractVersion: 1,
+                        adminSignature: true
+                    };
+
+                    await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), contractData);
+                    importedCount++;
+                }
+
+                alert(`Se importaron ${importedCount} contratos exitosamente`);
+                loadEvents();
+                fileInput.value = '';
+            } catch (error) {
+                console.error('Error al importar CSV:', error);
+                alert('Error al importar el archivo CSV');
+            }
+        }
+
+        async function syncToFirebase() {
+            try {
+                // Esta función ya está implementada implícitamente ya que todos los datos se guardan en Firebase
+                alert('Los datos ya están sincronizados con Firebase automáticamente');
+            } catch (error) {
+                console.error('Error al sincronizar:', error);
+                alert('Error al sincronizar con Firebase');
+            }
+        }
+
+        async function syncFromFirebase() {
+            try {
+                await loadEvents();
+                await loadContractSettings();
+                alert('Datos actualizados desde Firebase exitosamente');
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                alert('Error al obtener datos de Firebase');
+            }
+        }
+
+        function showDeleteConfirmation() {
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        function hideDeleteConfirmation() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+        }
+
+        async function deleteAllData() {
+            try {
+                const q = window.firestore.query(window.firestore.collection(window.db, 'contracts'));
+                const querySnapshot = await window.firestore.getDocs(q);
+                
+                const deletePromises = [];
+                querySnapshot.forEach((doc) => {
+                    deletePromises.push(window.firestore.deleteDoc(doc.ref));
+                });
+
+                await Promise.all(deletePromises);
+                
+                hideDeleteConfirmation();
+                closeDataManagement();
+                loadEvents();
+                alert('Todos los registros han sido eliminados');
+            } catch (error) {
+                console.error('Error al eliminar datos:', error);
+                alert('Error al eliminar los registros');
+            }
         }
 
         // Configuración del contrato
@@ -567,6 +860,7 @@
             document.getElementById('companyPhone').value = contractSettings.companyPhone;
             document.getElementById('companyEmail').value = contractSettings.companyEmail;
             document.getElementById('contractPlace').value = contractSettings.contractPlace;
+            document.getElementById('showRFC').value = contractSettings.showRFC;
             
             // Cláusulas
             document.getElementById('serviceDescription').value = contractSettings.serviceDescription;
@@ -596,6 +890,7 @@
                 companyPhone: document.getElementById('companyPhone').value,
                 companyEmail: document.getElementById('companyEmail').value,
                 contractPlace: document.getElementById('contractPlace').value,
+                showRFC: document.getElementById('showRFC').value,
                 
                 // Cláusulas
                 serviceDescription: document.getElementById('serviceDescription').value,
@@ -718,6 +1013,7 @@
             document.getElementById('eventLocation').value = eventData.eventLocation || '';
             document.getElementById('eventDuration').value = eventData.eventDuration || '';
             document.getElementById('eventPrice').value = eventData.eventPrice || '';
+            document.getElementById('advancePayment').value = eventData.advancePayment || '';
             document.getElementById('contractStatus').value = eventData.status || 'pendiente';
             document.getElementById('eventServices').value = eventData.eventServices || '';
             document.getElementById('eventTerms').value = eventData.eventTerms || '';
@@ -736,6 +1032,7 @@
                 eventLocation: document.getElementById('eventLocation').value,
                 eventDuration: document.getElementById('eventDuration').value,
                 eventPrice: document.getElementById('eventPrice').value,
+                advancePayment: document.getElementById('advancePayment').value || 0,
                 status: document.getElementById('contractStatus').value,
                 eventServices: document.getElementById('eventServices').value,
                 eventTerms: document.getElementById('eventTerms').value,
@@ -846,6 +1143,7 @@
                         <button onclick="editEvent('${event.id}')" class="text-blue-600 hover:text-blue-900">Editar</button>
                         <button onclick="viewContract('${event.id}')" class="text-green-600 hover:text-green-900">Ver Contrato</button>
                         <button onclick="copyContractUrl('${event.id}')" class="text-purple-600 hover:text-purple-900">Copiar Enlace</button>
+                        <button onclick="deleteEvent('${event.id}')" class="text-red-600 hover:text-red-900">Eliminar</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -857,6 +1155,7 @@
                 case 'pendiente': return 'bg-yellow-100 text-yellow-800';
                 case 'firmado': return 'bg-blue-100 text-blue-800';
                 case 'completado': return 'bg-green-100 text-green-800';
+                case 'cancelado': return 'bg-red-100 text-red-800';
                 default: return 'bg-gray-100 text-gray-800';
             }
         }
@@ -866,6 +1165,7 @@
                 case 'pendiente': return 'Pendiente';
                 case 'firmado': return 'Firmado';
                 case 'completado': return 'Completado';
+                case 'cancelado': return 'Cancelado';
                 default: return 'Desconocido';
             }
         }
@@ -902,6 +1202,20 @@
             });
         }
 
+        async function deleteEvent(eventId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este contrato? Esta acción no se puede deshacer.')) {
+                try {
+                    const docRef = window.firestore.doc(window.db, 'contracts', eventId);
+                    await window.firestore.deleteDoc(docRef);
+                    loadEvents();
+                    alert('Contrato eliminado exitosamente');
+                } catch (error) {
+                    console.error('Error al eliminar contrato:', error);
+                    alert('Error al eliminar el contrato');
+                }
+            }
+        }
+
         // Vista del cliente
         async function loadContract(contractId) {
             try {
@@ -932,6 +1246,9 @@
                 <div class="elegant-border rounded-lg p-8 bg-white relative z-10">
                     <!-- Encabezado -->
                     <div class="text-center mb-8">
+                        <div class="flex justify-center mb-4">
+                            <img src="https://i.ibb.co/twNLgxfq/. . . -n.jpg" alt="Dolce Ensamble Logo" class="h-20 w-auto" onerror="this.style.display='none';">
+                        </div>
                         <h1 class="text-3xl font-bold text-blue-800 mb-2">🎵 ${contractSettings.companyName}</h1>
                         <h2 class="text-xl font-semibold text-gray-700">CONTRATO DE SERVICIOS MUSICALES</h2>
                         <p class="text-sm text-gray-500 mt-2">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}</p>
@@ -946,7 +1263,7 @@
                                 <h4 class="font-semibold text-blue-800 mb-2">EL PRESTADOR:</h4>
                                 <p><strong>${contractSettings.companyName}</strong></p>
                                 <p>Nacionalidad: ${contractSettings.companyNationality}</p>
-                                <p>Identificación: ${contractSettings.companyId}</p>
+                                ${contractSettings.showRFC !== 'false' ? `<p>Identificación: ${contractSettings.companyId}</p>` : ''}
                                 <p>Domicilio: ${contractSettings.companyAddress}</p>
                                 <p>Teléfono: ${contractSettings.companyPhone}</p>
                                 <p>Email: ${contractSettings.companyEmail}</p>
@@ -1218,6 +1535,9 @@
                 <div style="background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 10px; border: 3px solid #1e40af; font-family: Arial, sans-serif;">
                     <!-- Encabezado -->
                     <div style="text-align: center; margin-bottom: 25px;">
+                        <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+                            <img src="https://i.ibb.co/twNLgxfq/. . . -n.jpg" alt="Dolce Ensamble Logo" style="height: 60px; width: auto;" onerror="this.style.display='none';">
+                        </div>
                         <h1 style="font-size: 26px; font-weight: bold; color: #1e40af; margin: 0;">🎵 ${contractSettings.companyName}</h1>
                         <h2 style="font-size: 18px; font-weight: 600; color: #374151; margin: 8px 0;">CONTRATO DE SERVICIOS MUSICALES</h2>
                         <p style="font-size: 11px; color: #6b7280; margin: 3px 0;">Contrato No. ${currentContract.id.substring(0, 8).toUpperCase()} - Versión ${currentContract.contractVersion}</p>
@@ -1232,7 +1552,7 @@
                                 <h4 style="font-size: 12px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">EL PRESTADOR:</h4>
                                 <p style="margin: 3px 0; font-size: 11px;"><strong>${contractSettings.companyName}</strong></p>
                                 <p style="margin: 3px 0; font-size: 10px;">Nacionalidad: ${contractSettings.companyNationality}</p>
-                                <p style="margin: 3px 0; font-size: 10px;">ID: ${contractSettings.companyId}</p>
+                                ${contractSettings.showRFC !== 'false' ? `<p style="margin: 3px 0; font-size: 10px;">ID: ${contractSettings.companyId}</p>` : ''}
                                 <p style="margin: 3px 0; font-size: 10px;">Domicilio: ${contractSettings.companyAddress}</p>
                                 <p style="margin: 3px 0; font-size: 10px;">Tel: ${contractSettings.companyPhone}</p>
                             </div>
@@ -1410,5 +1730,5 @@
             window.open(whatsappUrl, '_blank');
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f3baa20712b488',t:'MTc1Nzg5MzIyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f49c71f6a2b6eb',t:'MTc1NzkwMjQ3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
