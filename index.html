@@ -32,28 +32,84 @@
             cursor: crosshair;
         }
         .contract-bg {
-            background-image: url('https://i.ibb.co/nSdYQnh/Plantilla-1.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             position: relative;
         }
-        .contract-bg::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-        }
         .elegant-border {
-            border: 3px solid #1e40af;
-            border-image: linear-gradient(45deg, #1e40af, #3b82f6, #1e40af) 1;
+            border: 3px solid #8b5a3c;
+            border-image: linear-gradient(45deg, #8b5a3c, #d4af37, #8b5a3c) 1;
+            box-shadow: 0 10px 25px rgba(139, 90, 60, 0.1);
+        }
+        .musical-accent {
+            background: linear-gradient(135deg, #8b5a3c, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dolce-gold {
+            color: #d4af37;
+        }
+        .dolce-brown {
+            color: #8b5a3c;
+        }
+        .dolce-cream {
+            background-color: #faf8f3;
+        }
+        .sync-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .sync-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .sync-indicator.syncing {
+            background: #3b82f6;
+            color: white;
+        }
+        .sync-indicator.success {
+            background: #10b981;
+            color: white;
+        }
+        .sync-indicator.error {
+            background: #ef4444;
+            color: white;
+        }
+        .ornamental-divider {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><path d="M0 10 Q25 0 50 10 T100 10" stroke="%23d4af37" stroke-width="2" fill="none"/></svg>') center/contain no-repeat;
+            height: 20px;
+            margin: 20px 0;
+        }
+        .contract-header {
+            background: linear-gradient(135deg, #8b5a3c 0%, #d4af37 50%, #8b5a3c 100%);
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .clause-border {
+            border-left: 4px solid #d4af37;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+        }
+        .signature-section {
+            background: linear-gradient(135deg, #faf8f3 0%, #f1f0eb 100%);
+            border: 2px solid #d4af37;
+            border-radius: 15px;
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Indicador de Sincronización -->
+    <div id="syncIndicator" class="sync-indicator">
+        <span id="syncText">Sincronizando...</span>
+    </div>
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
@@ -957,30 +1013,62 @@
             setupProfileSignatureCanvas();
         }
 
-        // Gestión de administradores
+        // Indicador de sincronización
+        function showSyncIndicator(type, message) {
+            const indicator = document.getElementById('syncIndicator');
+            const text = document.getElementById('syncText');
+            
+            indicator.className = `sync-indicator show ${type}`;
+            text.textContent = message;
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, type === 'syncing' ? 0 : 3000);
+        }
+
+        // Gestión de administradores con sincronización Firebase
         async function loadAdministrators() {
             try {
+                showSyncIndicator('syncing', '🔄 Cargando perfiles...');
                 const docRef = window.firestore.doc(window.db, 'settings', 'administrators');
                 const docSnap = await window.firestore.getDoc(docRef);
                 
                 if (docSnap.exists()) {
-                    administrators = { ...administrators, ...docSnap.data() };
+                    const firebaseData = docSnap.data();
+                    // Mantener las contraseñas por defecto si no existen en Firebase
+                    Object.keys(administrators).forEach(adminId => {
+                        if (firebaseData[adminId]) {
+                            administrators[adminId] = {
+                                ...administrators[adminId],
+                                ...firebaseData[adminId]
+                            };
+                        }
+                    });
                 }
+                showSyncIndicator('success', '✅ Perfiles actualizados');
             } catch (error) {
                 console.error('Error al cargar administradores:', error);
+                showSyncIndicator('error', '❌ Error al cargar perfiles');
             }
         }
 
         async function saveAdministrators() {
             try {
+                showSyncIndicator('syncing', '🔄 Guardando perfil...');
                 const docRef = window.firestore.doc(window.db, 'settings', 'administrators');
-                await window.firestore.updateDoc(docRef, administrators);
+                
+                try {
+                    await window.firestore.updateDoc(docRef, administrators);
+                } catch (updateError) {
+                    // Si el documento no existe, lo creamos
+                    await window.firestore.setDoc(docRef, administrators);
+                }
+                
+                showSyncIndicator('success', '✅ Perfil guardado');
             } catch (error) {
-                // Si el documento no existe, lo creamos
-                await window.firestore.addDoc(window.firestore.collection(window.db, 'settings'), {
-                    ...administrators,
-                    id: 'administrators'
-                });
+                console.error('Error al guardar administradores:', error);
+                showSyncIndicator('error', '❌ Error al guardar perfil');
+                throw error;
             }
         }
 
@@ -1613,27 +1701,37 @@
 
         async function loadContractSettings() {
             try {
+                showSyncIndicator('syncing', '🔄 Cargando configuración...');
                 const docRef = window.firestore.doc(window.db, 'settings', 'contract');
                 const docSnap = await window.firestore.getDoc(docRef);
                 
                 if (docSnap.exists()) {
                     contractSettings = { ...contractSettings, ...docSnap.data() };
                 }
+                showSyncIndicator('success', '✅ Configuración cargada');
             } catch (error) {
                 console.error('Error al cargar configuración:', error);
+                showSyncIndicator('error', '❌ Error al cargar configuración');
             }
         }
 
         async function saveContractSettings() {
             try {
+                showSyncIndicator('syncing', '🔄 Guardando configuración...');
                 const docRef = window.firestore.doc(window.db, 'settings', 'contract');
-                await window.firestore.updateDoc(docRef, contractSettings);
+                
+                try {
+                    await window.firestore.updateDoc(docRef, contractSettings);
+                } catch (updateError) {
+                    // Si el documento no existe, lo creamos
+                    await window.firestore.setDoc(docRef, contractSettings);
+                }
+                
+                showSyncIndicator('success', '✅ Configuración guardada');
             } catch (error) {
-                // Si el documento no existe, lo creamos
-                await window.firestore.addDoc(window.firestore.collection(window.db, 'settings'), {
-                    ...contractSettings,
-                    id: 'contract'
-                });
+                console.error('Error al guardar configuración:', error);
+                showSyncIndicator('error', '❌ Error al guardar configuración');
+                throw error;
             }
         }
 
@@ -1751,6 +1849,7 @@
             try {
                 if (editingId) {
                     // Actualizar evento existente
+                    showSyncIndicator('syncing', '🔄 Actualizando contrato...');
                     const docRef = window.firestore.doc(window.db, 'contracts', editingId);
                     await window.firestore.updateDoc(docRef, {
                         ...eventData,
@@ -1759,18 +1858,21 @@
                     await addToHistory('Contrato modificado', editingId, eventData);
                     closeEventModal();
                     loadEvents();
-                    alert('Evento actualizado exitosamente');
+                    showSyncIndicator('success', '✅ Contrato actualizado');
                 } else {
                     // Crear nuevo evento
+                    showSyncIndicator('syncing', '🔄 Creando contrato...');
                     eventData.createdAt = new Date().toISOString();
                     const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'contracts'), eventData);
                     await addToHistory('Contrato creado', docRef.id, eventData);
                     closeEventModal();
                     showSuccessScreen(docRef.id);
                     loadEvents();
+                    showSyncIndicator('success', '✅ Contrato creado');
                 }
             } catch (error) {
                 console.error('Error al guardar evento:', error);
+                showSyncIndicator('error', '❌ Error al guardar contrato');
                 alert('Error al guardar el evento. Por favor intenta de nuevo.');
             }
         }
@@ -1807,6 +1909,7 @@
 
         async function loadEvents() {
             try {
+                showSyncIndicator('syncing', '🔄 Cargando contratos...');
                 const q = window.firestore.query(
                     window.firestore.collection(window.db, 'contracts'),
                     window.firestore.orderBy('createdAt', 'desc')
@@ -1819,8 +1922,10 @@
                 });
                 
                 displayEvents(events);
+                showSyncIndicator('success', '✅ Contratos actualizados');
             } catch (error) {
                 console.error('Error al cargar eventos:', error);
+                showSyncIndicator('error', '❌ Error al cargar contratos');
             }
         }
 
@@ -1970,136 +2075,218 @@
                 { name: 'Administrador', signature: null };
             
             content.innerHTML = `
-                <div class="elegant-border rounded-lg p-8 bg-white relative z-10">
-                    <!-- Encabezado -->
-                    <div class="text-center mb-8">
-                        <div class="flex justify-center mb-4">
-                            <img src="https://i.ibb.co/twNLgxfq/. . . -n.jpg" alt="Dolce Ensamble Logo" class="h-20 w-auto" onerror="this.style.display='none';">
+                <div class="elegant-border rounded-lg bg-white relative z-10 overflow-hidden">
+                    <!-- Encabezado Elegante -->
+                    <div class="contract-header p-8 text-center relative">
+                        <div class="absolute inset-0 opacity-10">
+                            <svg viewBox="0 0 100 100" class="w-full h-full">
+                                <path d="M20,50 Q30,30 40,50 T60,50 T80,50" stroke="currentColor" stroke-width="0.5" fill="none"/>
+                                <circle cx="50" cy="50" r="30" stroke="currentColor" stroke-width="0.3" fill="none"/>
+                            </svg>
                         </div>
-                        <h1 class="text-3xl font-bold text-blue-800 mb-2">🎵 ${contractSettings.companyName}</h1>
-                        <h2 class="text-xl font-semibold text-gray-700">CONTRATO DE SERVICIOS MUSICALES</h2>
-                        <p class="text-sm text-gray-500 mt-2">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}.0</p>
-                        <p class="text-sm text-gray-600 mt-1">${contractSettings.contractPlace}, ${currentDate}</p>
+                        <div class="relative z-10">
+                            <div class="flex justify-center mb-4">
+                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                    <span class="text-2xl">🎵</span>
+                                </div>
+                            </div>
+                            <h1 class="text-4xl font-bold mb-2 tracking-wide">${contractSettings.companyName}</h1>
+                            <div class="ornamental-divider"></div>
+                            <h2 class="text-xl font-semibold tracking-wider">CONTRATO DE SERVICIOS MUSICALES</h2>
+                            <p class="text-sm mt-4 opacity-90">Contrato No. ${contract.id.substring(0, 8).toUpperCase()} - Versión ${contract.contractVersion}.0</p>
+                            <p class="text-sm opacity-90">${contractSettings.contractPlace}, ${currentDate}</p>
+                        </div>
                     </div>
                     
-                    <!-- Comparecencia -->
-                    <div class="mb-8 text-sm leading-relaxed">
-                        <h3 class="font-bold text-gray-800 mb-4 text-center">COMPARECENCIA</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="border rounded-lg p-4 bg-blue-50">
-                                <h4 class="font-semibold text-blue-800 mb-2">EL PRESTADOR:</h4>
-                                <p><strong>${contractSettings.companyName}</strong></p>
-                                <p>Representado por: <strong>${adminInfo.name}</strong></p>
-                                <p>Nacionalidad: ${contractSettings.companyNationality}</p>
-                                ${contractSettings.showRFC === 'true' ? `<p>Identificación: ${contractSettings.companyId}</p>` : ''}
-                                <p>Teléfono: ${contractSettings.companyPhone}</p>
-                                <p>Email: ${contractSettings.companyEmail}</p>
-                            </div>
-                            <div class="border rounded-lg p-4 bg-green-50">
-                                <h4 class="font-semibold text-green-800 mb-2">EL CONTRATANTE:</h4>
-                                <p><strong>${contract.clientName}</strong></p>
-                                <p>Teléfono: ${contract.clientPhone}</p>
-                                ${contract.clientEmail ? `<p>Email: ${contract.clientEmail}</p>` : ''}
-                                <div class="mt-2">
-                                    <p><strong>Evento:</strong> ${contract.eventType}</p>
-                                    <p><strong>Fecha:</strong> ${new Date(contract.eventDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                                    <p><strong>Hora:</strong> ${contract.eventTime}</p>
-                                    <p><strong>Lugar:</strong> ${contract.eventLocation}</p>
+                    <div class="p-8">
+                        <!-- Comparecencia -->
+                        <div class="mb-10 text-sm leading-relaxed">
+                            <h3 class="font-bold dolce-brown mb-6 text-center text-lg tracking-wide">COMPARECENCIA</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="dolce-cream border-2 border-amber-200 rounded-lg p-6 shadow-md">
+                                    <h4 class="font-bold dolce-brown mb-4 text-center border-b border-amber-300 pb-2">EL PRESTADOR</h4>
+                                    <div class="space-y-2">
+                                        <p><strong class="dolce-brown">${contractSettings.companyName}</strong></p>
+                                        <p>Representado por: <strong class="dolce-gold">${adminInfo.name}</strong></p>
+                                        <p>Nacionalidad: ${contractSettings.companyNationality}</p>
+                                        ${contractSettings.showRFC === 'true' ? `<p>Identificación: ${contractSettings.companyId}</p>` : ''}
+                                        <p>Teléfono: ${contractSettings.companyPhone}</p>
+                                        <p>Email: ${contractSettings.companyEmail}</p>
+                                    </div>
+                                </div>
+                                <div class="dolce-cream border-2 border-amber-200 rounded-lg p-6 shadow-md">
+                                    <h4 class="font-bold dolce-brown mb-4 text-center border-b border-amber-300 pb-2">EL CONTRATANTE</h4>
+                                    <div class="space-y-2">
+                                        <p><strong class="dolce-brown">${contract.clientName}</strong></p>
+                                        <p>Teléfono: ${contract.clientPhone}</p>
+                                        ${contract.clientEmail ? `<p>Email: ${contract.clientEmail}</p>` : ''}
+                                        <div class="mt-4 pt-3 border-t border-amber-300">
+                                            <p><strong class="dolce-gold">Evento:</strong> ${contract.eventType}</p>
+                                            <p><strong class="dolce-gold">Fecha:</strong> ${new Date(contract.eventDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                            <p><strong class="dolce-gold">Hora:</strong> ${contract.eventTime}</p>
+                                            <p><strong class="dolce-gold">Lugar:</strong> ${contract.eventLocation}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     
-                    <!-- Firmas -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <div class="text-center">
-                            <div class="border-t-2 border-gray-400 pt-4">
-                                <p class="text-sm font-semibold text-gray-800">${adminInfo.name}</p>
-                                <p class="text-xs text-gray-600">${contractSettings.companyName}</p>
-                                <p class="text-xs text-gray-500">EL PRESTADOR</p>
-                                ${adminInfo.signature ? `<img src="${adminInfo.signature}" alt="Firma del prestador" class="mx-auto mt-2 max-h-16 max-w-32">` : '<div class="h-16 flex items-center justify-center text-gray-400 text-xs">Sin firma</div>'}
+                        <!-- Cláusulas -->
+                        <div class="space-y-8 text-sm leading-relaxed">
+                            <!-- Cláusula Primera -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">1</span>
+                                    OBJETO DEL CONTRATO
+                                </h4>
+                                <p class="mb-3 text-gray-700">${contractSettings.serviceDescription}</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <p><strong class="dolce-gold">Duración del servicio:</strong> ${contract.eventDuration} horas</p>
+                                    <p><strong class="dolce-gold">Precio total:</strong> $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
+                                </div>
+                                <p class="mt-3"><strong class="dolce-gold">Servicios específicos:</strong> ${contract.eventServices || 'Según cotización anexa'}</p>
+                            </div>
+                            
+                            <!-- Cláusula Segunda -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">2</span>
+                                    POLÍTICA DE PAGO Y CANCELACIÓN
+                                </h4>
+                                <p class="mb-3 text-gray-700"><strong class="dolce-gold">Forma de pago:</strong> ${contractSettings.paymentPolicy}</p>
+                                <p class="text-gray-700"><strong class="dolce-gold">Cancelaciones:</strong> ${contractSettings.cancellationPolicy}</p>
+                            </div>
+                            
+                            <!-- Cláusula Tercera -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">3</span>
+                                    REPERTORIO Y MÚSICA ADICIONAL
+                                </h4>
+                                <p class="mb-3 text-gray-700">${contractSettings.repertoirePolicy}</p>
+                                <p class="text-gray-700">${contractSettings.additionalSongsCost}</p>
+                            </div>
+                            
+                            <!-- Cláusula Cuarta -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">4</span>
+                                    LOGÍSTICA Y RESPONSABILIDADES
+                                </h4>
+                                <p class="mb-3 text-gray-700">${contractSettings.logisticsRequirements}</p>
+                                <p class="text-gray-700">${contractSettings.equipmentResponsibility}</p>
+                            </div>
+                            
+                            <!-- Cláusula Quinta -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">5</span>
+                                    TIEMPO EXTRA Y PUNTUALIDAD
+                                </h4>
+                                <p class="mb-3 text-gray-700"><strong class="dolce-gold">Llegada:</strong> ${contractSettings.arrivalTime}</p>
+                                <p class="text-gray-700">${contractSettings.overtimePolicy}</p>
+                            </div>
+                            
+                            <!-- Cláusula Sexta -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">6</span>
+                                    DERECHOS DE IMAGEN Y CONFIDENCIALIDAD
+                                </h4>
+                                <p class="mb-3 text-gray-700">${contractSettings.imageRights}</p>
+                                <p class="text-gray-700">${contractSettings.confidentiality}</p>
+                            </div>
+                            
+                            <!-- Cláusula Séptima -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">7</span>
+                                    SOLUCIÓN DE CONTROVERSIAS
+                                </h4>
+                                <p class="text-gray-700">${contractSettings.disputeResolution}</p>
+                            </div>
+                            
+                            <!-- Cláusula Octava -->
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">8</span>
+                                    VALIDEZ DE FIRMA DIGITAL
+                                </h4>
+                                <p class="text-gray-700">${contractSettings.digitalSignature}</p>
+                            </div>
+                            
+                            <!-- Términos Adicionales -->
+                            ${contract.eventTerms ? `
+                            <div class="clause-border rounded-lg p-6 shadow-sm">
+                                <h4 class="font-bold dolce-brown mb-4 text-base flex items-center">
+                                    <span class="w-8 h-8 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white text-sm mr-3">+</span>
+                                    TÉRMINOS Y CONDICIONES ADICIONALES
+                                </h4>
+                                <p class="text-gray-700">${contract.eventTerms}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                    
+                        <!-- Sección de Firmas al Final -->
+                        <div class="mt-12 pt-8">
+                            <div class="ornamental-divider mb-8"></div>
+                            <h3 class="font-bold dolce-brown mb-8 text-center text-lg tracking-wide">FIRMAS</h3>
+                            
+                            <div class="signature-section p-8 mx-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                    <!-- Firma del Prestador -->
+                                    <div class="text-center">
+                                        <div class="mb-6">
+                                            ${adminInfo.signature ? 
+                                                `<div class="flex justify-center mb-4">
+                                                    <img src="${adminInfo.signature}" alt="Firma del prestador" class="max-h-20 max-w-48 border-b-2 border-amber-400">
+                                                </div>` : 
+                                                '<div class="h-20 border-b-2 border-amber-400 flex items-end justify-center pb-2"><span class="text-gray-400 text-sm">Sin firma digital</span></div>'
+                                            }
+                                        </div>
+                                        <div class="space-y-1">
+                                            <p class="font-bold dolce-brown text-lg">${adminInfo.name}</p>
+                                            <p class="dolce-gold font-semibold">${contractSettings.companyName}</p>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wide">EL PRESTADOR</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Firma del Cliente -->
+                                    <div class="text-center">
+                                        <div class="mb-6">
+                                            ${contract.clientSignature ? 
+                                                `<div class="flex justify-center mb-4">
+                                                    <img src="${contract.clientSignature}" alt="Firma del cliente" class="max-h-20 max-w-48 border-b-2 border-amber-400">
+                                                </div>` : 
+                                                '<div class="h-20 border-b-2 border-amber-400 flex items-end justify-center pb-2"><span class="text-gray-400 text-sm">Pendiente de firma</span></div>'
+                                            }
+                                        </div>
+                                        <div class="space-y-1">
+                                            <p class="font-bold dolce-brown text-lg">${contract.clientName}</p>
+                                            <p class="text-sm text-gray-600 uppercase tracking-wide">EL CONTRATANTE</p>
+                                            ${contract.clientSignature ? `<p class="text-xs text-green-600 mt-2">✓ Firmado el ${new Date(contract.signedAt || contract.createdAt).toLocaleDateString('es-ES')}</p>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Información adicional de firmas -->
+                                <div class="mt-8 pt-6 border-t border-amber-200 text-center text-xs text-gray-500">
+                                    <p class="mb-2">Las firmas digitales en este documento tienen validez legal conforme a la legislación mexicana vigente</p>
+                                    <p>Contrato generado el ${new Date(contract.createdAt).toLocaleString('es-ES')}</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-center">
-                            <div class="border-t-2 border-gray-400 pt-4">
-                                <p class="text-sm font-semibold text-gray-800">${contract.clientName}</p>
-                                <p class="text-xs text-gray-500">EL CONTRATANTE</p>
-                                ${contract.clientSignature ? `<img src="${contract.clientSignature}" alt="Firma del cliente" class="mx-auto mt-2 max-h-16 max-w-32">` : '<div class="h-16 flex items-center justify-center text-gray-400 text-xs">Pendiente de firma</div>'}
+                        
+                        <!-- Información de Contacto -->
+                        <div class="mt-8 pt-6 border-t border-amber-200 text-center text-xs text-gray-500 dolce-cream rounded-lg p-4 mx-4">
+                            <div class="flex justify-center mb-2">
+                                <span class="text-lg">🎵</span>
                             </div>
+                            <p class="font-semibold dolce-brown">Para dudas o aclaraciones</p>
+                            <p class="dolce-gold">${contractSettings.companyPhone} | ${contractSettings.companyEmail}</p>
+                            <div class="ornamental-divider mt-4"></div>
+                            <p class="text-xs mt-2 italic">Dolce Ensamble - Música que toca el corazón</p>
                         </div>
-                    </div>
-                    
-                    <!-- Cláusulas -->
-                    <div class="space-y-6 text-sm leading-relaxed">
-                        <!-- Cláusula Primera -->
-                        <div class="border-l-4 border-blue-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h4>
-                            <p class="mb-2">${contractSettings.serviceDescription}</p>
-                            <p><strong>Duración del servicio:</strong> ${contract.eventDuration} horas</p>
-                            <p><strong>Servicios específicos:</strong> ${contract.eventServices || 'Según cotización anexa'}</p>
-                        </div>
-                        
-                        <!-- Cláusula Segunda -->
-                        <div class="border-l-4 border-green-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SEGUNDA: POLÍTICA DE PAGO Y CANCELACIÓN</h4>
-                            <p class="mb-2"><strong>Precio total:</strong> $${parseFloat(contract.eventPrice).toLocaleString('es-MX')} MXN</p>
-                            <p class="mb-2"><strong>Forma de pago:</strong> ${contractSettings.paymentPolicy}</p>
-                            <p><strong>Cancelaciones:</strong> ${contractSettings.cancellationPolicy}</p>
-                        </div>
-                        
-                        <!-- Cláusula Tercera -->
-                        <div class="border-l-4 border-purple-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA TERCERA: REPERTORIO Y MÚSICA ADICIONAL</h4>
-                            <p class="mb-2">${contractSettings.repertoirePolicy}</p>
-                            <p>${contractSettings.additionalSongsCost}</p>
-                        </div>
-                        
-                        <!-- Cláusula Cuarta -->
-                        <div class="border-l-4 border-orange-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA CUARTA: LOGÍSTICA Y RESPONSABILIDADES DEL CONTRATANTE</h4>
-                            <p class="mb-2">${contractSettings.logisticsRequirements}</p>
-                            <p>${contractSettings.equipmentResponsibility}</p>
-                        </div>
-                        
-                        <!-- Cláusula Quinta -->
-                        <div class="border-l-4 border-red-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA QUINTA: TIEMPO EXTRA Y PUNTUALIDAD</h4>
-                            <p class="mb-2"><strong>Llegada:</strong> ${contractSettings.arrivalTime}</p>
-                            <p>${contractSettings.overtimePolicy}</p>
-                        </div>
-                        
-                        <!-- Cláusula Sexta -->
-                        <div class="border-l-4 border-pink-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SEXTA: DERECHOS DE IMAGEN Y CONFIDENCIALIDAD</h4>
-                            <p class="mb-2">${contractSettings.imageRights}</p>
-                            <p>${contractSettings.confidentiality}</p>
-                        </div>
-                        
-                        <!-- Cláusula Séptima -->
-                        <div class="border-l-4 border-indigo-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SÉPTIMA: SOLUCIÓN DE CONTROVERSIAS</h4>
-                            <p>${contractSettings.disputeResolution}</p>
-                        </div>
-                        
-                        <!-- Cláusula Octava -->
-                        <div class="border-l-4 border-gray-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA OCTAVA: VALIDEZ DE FIRMA DIGITAL</h4>
-                            <p>${contractSettings.digitalSignature}</p>
-                        </div>
-                        
-                        <!-- Términos Adicionales -->
-                        ${contract.eventTerms ? `
-                        <div class="border-l-4 border-yellow-500 pl-4">
-                            <h4 class="font-bold text-gray-800 mb-2">TÉRMINOS Y CONDICIONES ADICIONALES</h4>
-                            <p>${contract.eventTerms}</p>
-                        </div>
-                        ` : ''}
-                    </div>
-                    
-                    <!-- Información de Contacto -->
-                    <div class="mt-8 pt-6 border-t text-center text-xs text-gray-500">
-                        <p>Para dudas o aclaraciones contactar a ${contractSettings.companyPhone} | ${contractSettings.companyEmail}</p>
-                        <p class="mt-1">Este contrato fue generado digitalmente el ${new Date().toLocaleString('es-ES')}</p>
                     </div>
                 </div>
             `;
@@ -2262,5 +2449,5 @@
             }
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f99a09e2581654',t:'MTc1Nzk1NDgwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97fababb8276d749',t:'MTc1Nzk2NjYyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
