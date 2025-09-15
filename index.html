@@ -2062,5 +2062,205 @@
                         </div>
                         
                         <!-- Cláusula Quinta -->
-                        <div class="border-l-4
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f9867217fdb6e7',t:'MTc1Nzk1Mzk5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA QUINTA: TIEMPO EXTRA Y PUNTUALIDAD</h4>
+                            <p class="mb-2"><strong>Llegada:</strong> ${contractSettings.arrivalTime}</p>
+                            <p>${contractSettings.overtimePolicy}</p>
+                        </div>
+                        
+                        <!-- Cláusula Sexta -->
+                        <div class="border-l-4 border-pink-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SEXTA: DERECHOS DE IMAGEN Y CONFIDENCIALIDAD</h4>
+                            <p class="mb-2">${contractSettings.imageRights}</p>
+                            <p>${contractSettings.confidentiality}</p>
+                        </div>
+                        
+                        <!-- Cláusula Séptima -->
+                        <div class="border-l-4 border-indigo-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA SÉPTIMA: SOLUCIÓN DE CONTROVERSIAS</h4>
+                            <p>${contractSettings.disputeResolution}</p>
+                        </div>
+                        
+                        <!-- Cláusula Octava -->
+                        <div class="border-l-4 border-gray-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">CLÁUSULA OCTAVA: VALIDEZ DE FIRMA DIGITAL</h4>
+                            <p>${contractSettings.digitalSignature}</p>
+                        </div>
+                        
+                        <!-- Términos Adicionales -->
+                        ${contract.eventTerms ? `
+                        <div class="border-l-4 border-yellow-500 pl-4">
+                            <h4 class="font-bold text-gray-800 mb-2">TÉRMINOS Y CONDICIONES ADICIONALES</h4>
+                            <p>${contract.eventTerms}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Información de Contacto -->
+                    <div class="mt-8 pt-6 border-t text-center text-xs text-gray-500">
+                        <p>Para dudas o aclaraciones contactar a ${contractSettings.companyPhone} | ${contractSettings.companyEmail}</p>
+                        <p class="mt-1">Este contrato fue generado digitalmente el ${new Date().toLocaleString('es-ES')}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Configuración del pad de firma
+        function setupSignaturePad() {
+            const canvas = document.getElementById('signaturePad');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            
+            // Configurar canvas
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            
+            // Eventos de mouse
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Eventos táctiles
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            function handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                                 e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+        }
+
+        function clearSignature() {
+            const canvas = document.getElementById('signaturePad');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        async function saveSignature() {
+            const canvas = document.getElementById('signaturePad');
+            const signatureData = canvas.toDataURL();
+            
+            // Verificar que hay una firma
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const hasSignature = imageData.data.some(channel => channel !== 0);
+            
+            if (!hasSignature) {
+                alert('Por favor, dibuja tu firma antes de guardar');
+                return;
+            }
+            
+            try {
+                // Actualizar el contrato con la firma
+                const docRef = window.firestore.doc(window.db, 'contracts', currentContract.id);
+                await window.firestore.updateDoc(docRef, {
+                    clientSignature: signatureData,
+                    signedAt: new Date().toISOString(),
+                    status: 'firmado'
+                });
+                
+                // Agregar al historial
+                await addToHistory('Contrato firmado', currentContract.id, currentContract);
+                
+                // Actualizar la vista
+                currentContract.clientSignature = signatureData;
+                currentContract.status = 'firmado';
+                displayContract(currentContract);
+                
+                alert('¡Firma guardada exitosamente! El contrato ha sido firmado.');
+            } catch (error) {
+                console.error('Error al guardar firma:', error);
+                alert('Error al guardar la firma. Por favor intenta de nuevo.');
+            }
+        }
+
+        async function downloadContractPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                
+                // Capturar el contenido del contrato
+                const contractElement = document.getElementById('contractContent');
+                const canvas = await html2canvas(contractElement, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 190;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                
+                let position = 10;
+                
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight + 10;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                const fileName = `Contrato_${currentContract.id.substring(0, 8).toUpperCase()}_${currentContract.clientName.replace(/\s+/g, '_')}.pdf`;
+                pdf.save(fileName);
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert('Error al generar el PDF. Por favor intenta de nuevo.');
+            }
+        }
+
+        function contactAdmin() {
+            const adminInfo = currentContract.createdBy && administrators[currentContract.createdBy] ? 
+                administrators[currentContract.createdBy] : null;
+            
+            if (adminInfo) {
+                const message = `Hola, tengo una consulta sobre el contrato ${currentContract.id.substring(0, 8).toUpperCase()} para el evento ${currentContract.eventType} del ${new Date(currentContract.eventDate).toLocaleDateString('es-ES')}.`;
+                const whatsappUrl = `https://wa.me/${contractSettings.companyPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            } else {
+                const message = `Hola, tengo una consulta sobre mi contrato ${currentContract.id.substring(0, 8).toUpperCase()}.`;
+                const whatsappUrl = `https://wa.me/${contractSettings.companyPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f99a09e2581654',t:'MTc1Nzk1NDgwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
